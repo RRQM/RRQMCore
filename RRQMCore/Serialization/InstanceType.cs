@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace RRQMCore.Serialization
+﻿namespace RRQMCore.Serialization
 {
-   enum InstanceType
+    internal enum InstanceType
     {
         Class,
         List,

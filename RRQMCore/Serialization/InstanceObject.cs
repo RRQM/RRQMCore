@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RRQMCore.Serialization
 {
-    class InstanceObject
+    internal class InstanceObject
     {
         internal InstanceType instanceType;
         internal Type Type;

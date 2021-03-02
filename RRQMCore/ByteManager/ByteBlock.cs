@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RRQMCore.ByteManager
 {
@@ -14,7 +10,6 @@ namespace RRQMCore.ByteManager
     {
         internal ByteBlock()
         {
-
         }
 
         /// <summary>
@@ -26,7 +21,6 @@ namespace RRQMCore.ByteManager
         /// 字节实例
         /// </summary>
         public byte[] Buffer { get; internal set; }
-
 
         /// <summary>
         /// 使用状态
@@ -101,7 +95,6 @@ namespace RRQMCore.ByteManager
             return Read(buffer, 0, buffer.Length);
         }
 
-
         /// <summary>
         /// 写入
         /// </summary>
@@ -140,13 +133,11 @@ namespace RRQMCore.ByteManager
             return buffer;
         }
 
-
         /// <summary>
         /// 无实际效果
         /// </summary>
         public override void Flush()
         {
-
         }
 
         /// <summary>
@@ -162,9 +153,11 @@ namespace RRQMCore.ByteManager
                 case SeekOrigin.Begin:
                     this.Position = offset;
                     break;
+
                 case SeekOrigin.Current:
                     this.Position = offset;
                     break;
+
                 case SeekOrigin.End:
                     this.Position = this.Length + offset;
                     break;
@@ -178,7 +171,6 @@ namespace RRQMCore.ByteManager
         /// <param name="value"></param>
         public override void SetLength(long value)
         {
-
         }
 
         /// <summary>

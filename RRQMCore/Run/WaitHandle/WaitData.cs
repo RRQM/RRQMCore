@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace RRQMCore.Run
 {
@@ -36,7 +32,7 @@ namespace RRQMCore.Run
         {
             this.waitHandle.WaitOne(millisecond);
         }
-        
+
         /// <summary>
         /// 使等待的线程继续执行
         /// </summary>
@@ -56,6 +52,7 @@ namespace RRQMCore.Run
         }
 
         internal bool dispose;
+
         /// <summary>
         /// 回收
         /// </summary>

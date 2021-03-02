@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RRQMCore.Run
 {
     /*
     若汝棋茗
     */
+
     /// <summary>
     /// 注册为消息
     /// </summary>
@@ -20,8 +17,8 @@ namespace RRQMCore.Run
         /// </summary>
         public RegistMethodAttribute()
         {
-
         }
+
         /// <summary>
         /// 构造函数
         /// </summary>
@@ -30,6 +27,7 @@ namespace RRQMCore.Run
         {
             this.Token = token;
         }
+
         /// <summary>
         /// 标识
         /// </summary>
