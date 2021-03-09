@@ -8,20 +8,22 @@
 		<Description>
       此程序集是RRQM的核心开源库，其中包含了内存池、高性能序列化、日志接口在内的很多基本内容。
 
-      更新时间：2021.02.27
+      更新时间：2021.03.06
 
       更新内容：
       1.完善BytePool，使其在多线程中安全使用。
       2.完善BytePool，优化释放逻辑。
       3.完善ByteBlock，使其继承自Stream，能够直接参与流操作。
       4.完善序列化，使其支持自定义头序列化。
+      4.完善序列化，取消内部申请，全静态方法。
       5.增加WaitHandle系列，主要用于线程等待并传递信息等操作。
       6.增加Message系列，主要用于模块间通信。
       6.增加RRQMBinaryFormatter，主要用于超轻量二进制序列化。
+      6.ByteBlock增加SetBuffer方法。
     </Description>
-		<PackageProjectUrl>https://github.com/RRQM/RRQMCore</PackageProjectUrl>
+		<PackageProjectUrl>https://gitee.com/RRQM_Home/RRQMCore</PackageProjectUrl>
 		<Copyright>Copyright © 2021 若汝棋茗</Copyright>
-		<Version>1.1.0</Version>
+		<Version>1.2.1</Version>
 		<SignAssembly>true</SignAssembly>
 		<AssemblyOriginatorKeyFile>RRQM.pfx</AssemblyOriginatorKeyFile>
 		<ApplicationIcon>RRQM.ico</ApplicationIcon>

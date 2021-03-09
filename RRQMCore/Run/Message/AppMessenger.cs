@@ -1,15 +1,26 @@
-﻿using RRQMCore.Exceptions;
+//------------------------------------------------------------------------------
+//  此代码版权归作者本人若汝棋茗所有
+//  源代码使用协议遵循本仓库的开源协议，若本仓库没有设置，则按MIT开源协议授权
+//  CSDN博客：https://blog.csdn.net/qq_40374647
+//  哔哩哔哩视频：https://space.bilibili.com/94253567
+//  源代码仓库：https://gitee.com/RRQM_Home
+//  交流QQ群：234762506
+//  感谢您的下载和使用
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
+using RRQMCore.Exceptions;
 
 namespace RRQMCore.Run
 {
     /*
     若汝棋茗
     */
-
     /// <summary>
     /// 消息通知类
     /// </summary>
@@ -25,7 +36,7 @@ namespace RRQMCore.Run
                             .ToArray();
             foreach (var v in types)
             {
-                IMessage message = (IMessage)Activator.CreateInstance(v);
+                IMessage  message = (IMessage)Activator.CreateInstance(v);
                 MethodInfo[] methods = message.GetType().GetMethods();
                 foreach (var item in methods)
                 {
@@ -45,6 +56,7 @@ namespace RRQMCore.Run
             }
         }
 
+       
         private static AppMessenger instance;
 
         /// <summary>
@@ -63,7 +75,7 @@ namespace RRQMCore.Run
             }
         }
 
-        private Dictionary<string, TokenInstance> tokenAndInstance = new Dictionary<string, TokenInstance>();
+        Dictionary<string, TokenInstance> tokenAndInstance = new Dictionary<string, TokenInstance>();
 
         /// <summary>
         /// 注册消息
@@ -83,8 +95,10 @@ namespace RRQMCore.Run
             }
             catch (Exception)
             {
+
                 throw new MessageRegisteredException("该Token消息已注册");
             }
+
         }
 
         /// <summary>
@@ -131,6 +145,7 @@ namespace RRQMCore.Run
             {
                 throw new MessageRegisteredException("该Token消息已注册");
             }
+
         }
 
         /// <summary>
@@ -205,7 +220,7 @@ namespace RRQMCore.Run
         /// 卸载消息
         /// </summary>
         /// <param name="messageObject"></param>
-        public void Unregister(IMessage messageObject)
+        public void Unregister(IMessage messageObject )
         {
             List<string> key = new List<string>();
 
@@ -247,6 +262,7 @@ namespace RRQMCore.Run
             {
                 throw new MessageNotFoundException("未找到该消息");
             }
+
         }
 
         /// <summary>

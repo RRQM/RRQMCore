@@ -9,17 +9,19 @@
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RRQMCore.Event
+namespace RRQMCore.ByteManager
 {
     /// <summary>
-    /// 若汝棋茗所有事件基类
+    /// 字节块集合字典索引。
     /// </summary>
-    public class EventArgs
+    public class BytesDictionary : ConcurrentDictionary<long, BytesCollection>
     {
+
     }
 }

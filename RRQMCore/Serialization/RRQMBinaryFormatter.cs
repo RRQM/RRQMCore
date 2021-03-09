@@ -1,10 +1,22 @@
-﻿using System;
+//------------------------------------------------------------------------------
+//  此代码版权归作者本人若汝棋茗所有
+//  源代码使用协议遵循本仓库的开源协议，若本仓库没有设置，则按MIT开源协议授权
+//  CSDN博客：https://blog.csdn.net/qq_40374647
+//  哔哩哔哩视频：https://space.bilibili.com/94253567
+//  源代码仓库：https://gitee.com/RRQM_Home
+//  交流QQ群：234762506
+//  感谢您的下载和使用
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+using System;
 using System.Collections;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace RRQMCore.Serialization
 {
@@ -24,9 +36,7 @@ namespace RRQMCore.Serialization
         private static readonly Type decimalType = typeof(decimal);
         private static readonly Type dateTimeType = typeof(DateTime);
         private static readonly Type bytesType = typeof(byte[]);
-
         #region Serialize
-
         /// <summary>
         /// 序列化对象
         /// </summary>
@@ -176,9 +186,10 @@ namespace RRQMCore.Serialization
             return len;
         }
 
-        #endregion Serialize
+        #endregion
 
         #region Deserialize
+
 
         /// <summary>
         /// 反序列化
@@ -191,7 +202,6 @@ namespace RRQMCore.Serialization
         {
             return Deserialize(type, data, ref offset);
         }
-
         private object Deserialize(Type type, byte[] datas, ref int offset)
         {
             dynamic obj = null;
@@ -274,6 +284,7 @@ namespace RRQMCore.Serialization
                 {
                     throw new Exception("未定义的类型：" + type.ToString());
                 }
+
             }
             offset += len;
             return obj;
@@ -295,6 +306,7 @@ namespace RRQMCore.Serialization
                     }
                 case InstanceType.List:
                     {
+
                         int index = offset;
                         while (offset - index < length && (length >= 4))
                         {
@@ -326,6 +338,7 @@ namespace RRQMCore.Serialization
                             {
                                 instanceObject.AddMethod.Invoke(instanceObject.Instance, new object[] { key, value });
                             }
+
                         }
 
                         break;
@@ -334,16 +347,16 @@ namespace RRQMCore.Serialization
                     break;
             }
 
+
             return instanceObject.Instance;
         }
 
-        #endregion Deserialize
 
+        #endregion
         private PropertyInfo[] GetProperties(Type type)
         {
             return type.GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
         }
-
         private static readonly ConcurrentDictionary<string, InstanceObject> InstanceCache = new ConcurrentDictionary<string, InstanceObject>();
 
         private InstanceObject GetOrAddInstance(Type type)
