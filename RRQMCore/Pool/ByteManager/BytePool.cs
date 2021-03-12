@@ -180,7 +180,7 @@ namespace RRQMCore.ByteManager
                     CreatedBlockSize = byteSize;
                     BlockCount++;
                 }
-                BytesCollection bytesCollection = bytesDictionary.GetOrAdd(byteSize, (v) => { return new BytesCollection(); });
+                BytesCollection bytesCollection = bytesDictionary.GetOrAdd(byteSize, (v) => { return new BytesCollection(byteSize); });
                 bytesCollection.BytePool = this;
                 byteBlock.BytesCollection = bytesCollection;
                 return byteBlock;
@@ -195,8 +195,13 @@ namespace RRQMCore.ByteManager
 
         internal void OnByteBlockRecycle(ByteBlock byteBlock)
         {
+            if (byteBlock.lengthChenged)
+            {
+                this.ActualSize -= byteBlock.BytesCollection.size;
+                this.ActualSize += byteBlock.Length;
+            }
             byteBlock.Using = false;
-            BytesCollection bytesCollection = bytesDictionary.GetOrAdd(byteBlock.Length, (v) => { return new BytesCollection(); });
+            BytesCollection bytesCollection = bytesDictionary.GetOrAdd(byteBlock.Capacity, (v) => { return new BytesCollection(byteBlock.Length); });
             bytesCollection.BytePool = this;
             bytesCollection.Add(byteBlock);
         }

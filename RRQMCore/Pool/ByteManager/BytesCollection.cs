@@ -19,6 +19,13 @@ namespace RRQMCore.ByteManager
     [DebuggerDisplay("Count = {bytes.Count}")]
     public class BytesCollection
     {
+        internal long size;
+
+        internal BytesCollection(long size)
+        {
+            this.size = size;
+        }
+
         /// <summary>
         /// 所属字节池
         /// </summary>
@@ -37,6 +44,7 @@ namespace RRQMCore.ByteManager
             {
                 byteBlock.Using = true;
                 byteBlock.Position = 0;
+                byteBlock.length = 0;
             }
             return byteBlock;
         }
@@ -47,6 +55,7 @@ namespace RRQMCore.ByteManager
         /// <param name="byteBlock"></param>
         public void Add(ByteBlock byteBlock)
         {
+            byteBlock.lengthChenged = false;
             byteBlock.BytesCollection = this;
             this.bytes.Enqueue(byteBlock);
         }

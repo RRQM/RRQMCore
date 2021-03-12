@@ -12,7 +12,7 @@ namespace RRQMCore.Pool
     /// 对象池
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class ObjectPool<T> where T : IPoolObject
+    public class ObjectPool<T> : IObjectPool where T : IPoolObject
     {
         /// <summary>
         /// 构造函数
@@ -22,13 +22,13 @@ namespace RRQMCore.Pool
         {
             this.Capacity = capacity;
         }
-        
+
         /// <summary>
         /// 构造函数
         /// </summary>
         public ObjectPool()
         {
-            
+
         }
 
         private ConcurrentQueue<T> queue = new ConcurrentQueue<T>();
@@ -43,8 +43,16 @@ namespace RRQMCore.Pool
         public int FreeSize { get { return this.freeSize; } }
         private int freeSize;
 
-       
+        /// <summary>
+        /// 清除池中所有对象
+        /// </summary>
+        public void Clear()
+        {
+            while (this.queue.TryDequeue(out _))
+            {
 
+            }
+        }
 
         /// <summary>
         /// 获取对象T
@@ -74,12 +82,20 @@ namespace RRQMCore.Pool
         public void DestroyObject(T t)
         {
             t.Destroy();
-            if (this.freeSize<this.Capacity)
+            if (this.freeSize < this.Capacity)
             {
                 Interlocked.Increment(ref this.freeSize);
                 this.queue.Enqueue(t);
             }
-            
+
+        }
+
+        /// <summary>
+        /// 释放对象
+        /// </summary>
+        public void Dispose()
+        {
+            this.Clear();
         }
     }
 }

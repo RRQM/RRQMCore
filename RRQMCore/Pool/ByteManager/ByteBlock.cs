@@ -61,21 +61,29 @@ namespace RRQMCore.ByteManager
         /// <summary>
         /// 流长度
         /// </summary>
-        public override long Length => this.Buffer.Length;
+        public override long Length { get { return length; } }
+
+        internal long length;
+        /// <summary>
+        /// 容量
+        /// </summary>
+        public int Capacity => this.Buffer.Length;
 
         /// <summary>
         /// 流位置
         /// </summary>
         public override long Position { get; set; }
 
+        internal bool lengthChenged;
         /// <summary>
         /// 重新指定Buffer
         /// </summary>
         public void SetBuffer(byte[] buffer)
         {
-            if (buffer!=null)
+            if (buffer != null)
             {
                 this.Buffer = buffer;
+                this.lengthChenged = true;
             }
         }
 
@@ -107,9 +115,11 @@ namespace RRQMCore.ByteManager
                 byte[] newBuffer = new byte[this.Position + count];
                 Array.Copy(this.Buffer, newBuffer, this.Buffer.Length);
                 this.Buffer = newBuffer;
+                this.lengthChenged = true;
             }
             Array.Copy(buffer, offset, Buffer, this.Position, count);
             this.Position += count;
+            this.length += count;
         }
 
         /// <summary>
@@ -145,9 +155,11 @@ namespace RRQMCore.ByteManager
                 byte[] newBuffer = new byte[this.Position + 1];
                 Array.Copy(this.Buffer, newBuffer, this.Buffer.Length);
                 this.Buffer = newBuffer;
+                this.lengthChenged = true;
             }
             this.Buffer[this.Position] = byteBuffer;
             this.Position += 1;
+            this.length += 1;
         }
 
         /// <summary>
@@ -157,7 +169,7 @@ namespace RRQMCore.ByteManager
         public byte[] ToArray()
         {
             byte[] buffer = new byte[this.Position];
-            Array.Copy(this.Buffer, 0, buffer, 0, this.Position);
+            Array.Copy(this.Buffer, 0, buffer, 0, this.Length);
             return buffer;
         }
 
@@ -194,12 +206,16 @@ namespace RRQMCore.ByteManager
         }
 
         /// <summary>
-        /// 该方法无意义
+        /// 设置实际长度
         /// </summary>
         /// <param name="value"></param>
         public override void SetLength(long value)
         {
-
+            if (value>this.Buffer.Length)
+            {
+                throw new RRQMCore.Exceptions.RRQMException("设置值超出容量");
+            }
+            this.length = value;
         }
 
         /// <summary>
