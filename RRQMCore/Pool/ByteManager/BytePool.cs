@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace RRQMCore.ByteManager
@@ -74,7 +75,7 @@ namespace RRQMCore.ByteManager
         public long CreatedBlockSize { get; private set; }
 
         private BytesDictionary bytesDictionary = new BytesDictionary();
-
+        private long id;
         /// <summary>
         /// 获取ByteBlock
         /// </summary>
@@ -128,6 +129,7 @@ namespace RRQMCore.ByteManager
                     byteBlock = CreatByteBlock(byteSize);
                 }
             }
+            byteBlock.ID = Interlocked.Increment(ref id);
             return byteBlock;
 
         }
@@ -159,6 +161,7 @@ namespace RRQMCore.ByteManager
             }
             //未搜索到
             byteBlock = CreatByteBlock(this.MaxBlockSize);
+            byteBlock.ID = Interlocked.Increment(ref id);
             return byteBlock;
         }
 

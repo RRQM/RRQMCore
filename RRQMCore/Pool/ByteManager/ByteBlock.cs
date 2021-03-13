@@ -37,6 +37,11 @@ namespace RRQMCore.ByteManager
         /// </summary>
         public byte[] Buffer { get; internal set; }
 
+        /// <summary>
+        /// 被创建时由池对象分配的唯一标识，
+        /// 可用于TryDispose
+        /// </summary>
+        public long ID { get; internal set; }
 
         /// <summary>
         /// 使用状态
@@ -132,7 +137,6 @@ namespace RRQMCore.ByteManager
             return Read(buffer, 0, buffer.Length);
         }
 
-
         /// <summary>
         /// 写入
         /// </summary>
@@ -211,7 +215,7 @@ namespace RRQMCore.ByteManager
         /// <param name="value"></param>
         public override void SetLength(long value)
         {
-            if (value>this.Buffer.Length)
+            if (value > this.Buffer.Length)
             {
                 throw new RRQMCore.Exceptions.RRQMException("设置值超出容量");
             }
@@ -227,6 +231,25 @@ namespace RRQMCore.ByteManager
             {
                 this.BytesCollection.BytePool.OnByteBlockRecycle(this);
             }
+        }
+
+        /// <summary>
+        /// 尝试释放内存块，
+        /// 当ID不匹配时，不进行释放
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>释放结果</returns>
+        public bool TryDispose(long id)
+        {
+            if (id == this.ID)
+            {
+                if (this.BytesCollection != null)
+                {
+                    this.BytesCollection.BytePool.OnByteBlockRecycle(this);
+                }
+                return true;
+            }
+            return false;
         }
     }
 }
