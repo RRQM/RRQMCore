@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>netstandard2.0</TargetFrameworks>
+		<TargetFrameworks>net45;netcoreapp3.1;netstandard2.0</TargetFrameworks>
 		<UseWPF>true</UseWPF>
 		<Authors>若汝棋茗</Authors>
 		<PackageIcon>RRQM.png</PackageIcon>
@@ -18,7 +18,7 @@
 		</Description>
 		<PackageProjectUrl>https://gitee.com/RRQM_Home/RRQMCore</PackageProjectUrl>
 		<Copyright>Copyright © 2021 若汝棋茗</Copyright>
-		<Version>1.2.3</Version>
+		<Version>1.2.4</Version>
 		<SignAssembly>true</SignAssembly>
 		<AssemblyOriginatorKeyFile>RRQM.pfx</AssemblyOriginatorKeyFile>
 		<ApplicationIcon>RRQM.ico</ApplicationIcon>
