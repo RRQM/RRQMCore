@@ -167,6 +167,11 @@ namespace RRQMCore.Serialization
                 PropertyInfo[] propertyInfos = this.GetProperties(type);
                 foreach (PropertyInfo property in propertyInfos)
                 {
+                    byte[] propertyBytes = Encoding.UTF8.GetBytes(property.Name);
+                    byte[] lenBytes = BitConverter.GetBytes(propertyBytes.Length);
+                    stream.Write(lenBytes, 0, lenBytes.Length);
+                    stream.Write(propertyBytes, 0, propertyBytes.Length);
+                    len += propertyBytes.Length + 4;
                     len += SerializeObject(stream, property.GetValue(obj, null));
                 }
             }
@@ -297,11 +302,22 @@ namespace RRQMCore.Serialization
             {
                 case InstanceType.Class:
                     {
-                        foreach (var item in instanceObject.Properties)
+                        int index = offset;
+                        while (offset - index < length && (length >= 4))
                         {
-                            object obj = Deserialize(item.PropertyType, datas, ref offset);
-                            item.SetValue(instanceObject.Instance, obj);
+                            int len = BitConverter.ToInt32(datas, offset);
+                            string propertyName = Encoding.UTF8.GetString(datas, offset + 4, len);
+                            offset += len + 4;
+                            PropertyInfo propertyInfo = type.GetProperty(propertyName);
+
+                            object obj = Deserialize(propertyInfo.PropertyType, datas, ref offset);
+                            propertyInfo.SetValue(instanceObject.Instance, obj);
                         }
+
+                        //foreach (var item in instanceObject.Properties)
+                        //{
+
+                        //}
                         break;
                     }
                 case InstanceType.List:
