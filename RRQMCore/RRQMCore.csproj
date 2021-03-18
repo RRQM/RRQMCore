@@ -1,23 +1,24 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net45;netstandard2.0;netcoreapp3.1</TargetFrameworks>
+		<TargetFrameworks>netstandard2.0</TargetFrameworks>
 		<UseWPF>true</UseWPF>
 		<Authors>若汝棋茗</Authors>
 		<PackageIcon>RRQM.png</PackageIcon>
 		<Description>
 			此程序集是RRQM的核心开源库，其中包含了内存池、高性能序列化、日志接口在内的很多基本内容。
 
-			更新时间：2021.03.13
+			更新时间：2021.03.18
 
 			更新内容：
 			1.增加：ObjectPool对象池。
 			2.修改：ByteBlock类，增加Capacity属性。
-			2.修改：ByteBlock类，增加ID标识和TryDispose，防误释放。
+			3.修改：ByteBlock类，增加ID标识和TryDispose，防误释放。
+			4.修复：ByteBlock类，ID标识重复问题。
 		</Description>
 		<PackageProjectUrl>https://gitee.com/RRQM_Home/RRQMCore</PackageProjectUrl>
 		<Copyright>Copyright © 2021 若汝棋茗</Copyright>
-		<Version>1.2.2</Version>
+		<Version>1.2.3</Version>
 		<SignAssembly>true</SignAssembly>
 		<AssemblyOriginatorKeyFile>RRQM.pfx</AssemblyOriginatorKeyFile>
 		<ApplicationIcon>RRQM.ico</ApplicationIcon>

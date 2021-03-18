@@ -107,6 +107,7 @@ namespace RRQMCore.ByteManager
                         byteBlock = bytesDictionary[byteSize].Get();
                         if (byteBlock != null)
                         {
+                            byteBlock.ID = Interlocked.Increment(ref id);
                             return byteBlock;
                         }
                     }
@@ -120,6 +121,7 @@ namespace RRQMCore.ByteManager
                                 byteBlock = bytesDictionary[size].Get();
                                 if (byteBlock != null)
                                 {
+                                    byteBlock.ID = Interlocked.Increment(ref id);
                                     return byteBlock;
                                 }
                             }
@@ -156,6 +158,7 @@ namespace RRQMCore.ByteManager
                 byteBlock = bytesDictionary[size].Get();
                 if (byteBlock != null)
                 {
+                    byteBlock.ID = Interlocked.Increment(ref id);
                     return byteBlock;
                 }
             }
