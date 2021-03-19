@@ -117,7 +117,7 @@ namespace RRQMCore.ByteManager
         {
             if (this.Buffer.Length - this.Position < count)
             {
-                byte[] newBuffer = new byte[this.Position + count];
+                byte[] newBuffer = new byte[GetNewCapacity(this.Position+count-this.Buffer.Length)];
                 Array.Copy(this.Buffer, newBuffer, this.Buffer.Length);
                 this.Buffer = newBuffer;
                 this.lengthChenged = true;
@@ -125,6 +125,17 @@ namespace RRQMCore.ByteManager
             Array.Copy(buffer, offset, Buffer, this.Position, count);
             this.Position += count;
             this.length += count;
+        }
+
+        private int GetNewCapacity(long length)
+        {
+            int len = Buffer.Length;
+            while (this.Position+length>len)
+            {
+                len= (int)(1.5*len);
+            }
+
+            return len;
         }
 
         /// <summary>
@@ -156,7 +167,7 @@ namespace RRQMCore.ByteManager
         {
             if (this.Buffer.Length - this.Position < 1)
             {
-                byte[] newBuffer = new byte[this.Position + 1];
+                byte[] newBuffer = new byte[GetNewCapacity(this.Position + 1 - this.Buffer.Length)];
                 Array.Copy(this.Buffer, newBuffer, this.Buffer.Length);
                 this.Buffer = newBuffer;
                 this.lengthChenged = true;
@@ -172,7 +183,7 @@ namespace RRQMCore.ByteManager
         /// <returns></returns>
         public byte[] ToArray()
         {
-            byte[] buffer = new byte[this.Position];
+            byte[] buffer = new byte[this.Length];
             Array.Copy(this.Buffer, 0, buffer, 0, this.Length);
             return buffer;
         }

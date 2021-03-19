@@ -160,7 +160,7 @@ namespace RRQMCore.Serialization
         /// <param name="stream"></param>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public static void RRQMBinarySerialize(Stream stream, object obj)
+        public static void RRQMBinarySerialize(ByteBlock stream, object obj)
         {
             RRQMBinaryFormatter bf = new RRQMBinaryFormatter();
             bf.Serialize(stream, obj);
@@ -173,10 +173,11 @@ namespace RRQMCore.Serialization
         /// <returns></returns>
         public static byte[] RRQMBinarySerialize(object obj)
         {
-            using (MemoryStream stream = new MemoryStream())
+            using (ByteBlock byteBlock = new ByteBlock())
             {
-                RRQMBinarySerialize(stream,obj);
-                return stream.ToArray();
+                byteBlock.SetBuffer(new byte[1024 * 10]);
+                RRQMBinarySerialize(byteBlock, obj);
+                return byteBlock.ToArray();
             }
         }
 

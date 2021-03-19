@@ -17,6 +17,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using RRQMCore.ByteManager;
 
 namespace RRQMCore.Serialization
 {
@@ -42,12 +43,17 @@ namespace RRQMCore.Serialization
         /// </summary>
         /// <param name="stream">流</param>
         /// <param name="graph">对象</param>
-        public void Serialize(Stream stream, object graph)
+        public void Serialize(ByteBlock stream, object graph)
         {
             SerializeObject(stream, graph);
         }
 
-        private int SerializeObject(Stream stream, object graph)
+        /// <summary>
+        /// 保留属性名
+        /// </summary>
+        public bool reserveAttributeName;
+
+        private int SerializeObject(ByteBlock stream, object graph)
         {
             int len = 0;
             byte[] data = null;
@@ -159,7 +165,7 @@ namespace RRQMCore.Serialization
             return len + 4;
         }
 
-        private int SerializeClass(Stream stream, object obj, Type type)
+        private int SerializeClass(ByteBlock stream, object obj, Type type)
         {
             int len = 0;
             if (obj != null)
@@ -167,18 +173,26 @@ namespace RRQMCore.Serialization
                 PropertyInfo[] propertyInfos = this.GetProperties(type);
                 foreach (PropertyInfo property in propertyInfos)
                 {
-                    byte[] propertyBytes = Encoding.UTF8.GetBytes(property.Name);
-                    byte[] lenBytes = BitConverter.GetBytes(propertyBytes.Length);
-                    stream.Write(lenBytes, 0, lenBytes.Length);
-                    stream.Write(propertyBytes, 0, propertyBytes.Length);
-                    len += propertyBytes.Length + 4;
+                    if (reserveAttributeName)
+                    {
+                        byte[] propertyBytes = Encoding.UTF8.GetBytes(property.Name);
+                        if (propertyBytes.Length > 255)
+                        {
+                            throw new RRQMCore.Exceptions.RRQMException($"属性名：{property.Name}超长");
+                        }
+                        byte lenBytes = (byte)propertyBytes.Length;
+                        stream.Write(lenBytes);
+                        stream.Write(propertyBytes, 0, propertyBytes.Length);
+                        len += propertyBytes.Length + 1;
+                    }
+
                     len += SerializeObject(stream, property.GetValue(obj, null));
                 }
             }
             return len;
         }
 
-        private int SerializeIEnumerable(Stream stream, IEnumerable param)
+        private int SerializeIEnumerable(ByteBlock stream, IEnumerable param)
         {
             int len = 0;
             if (param != null)
@@ -302,22 +316,25 @@ namespace RRQMCore.Serialization
             {
                 case InstanceType.Class:
                     {
-                        int index = offset;
-                        while (offset - index < length && (length >= 4))
+                        if (reserveAttributeName)
                         {
-                            int len = BitConverter.ToInt32(datas, offset);
-                            string propertyName = Encoding.UTF8.GetString(datas, offset + 4, len);
-                            offset += len + 4;
-                            PropertyInfo propertyInfo = type.GetProperty(propertyName);
+                            int index = offset;
+                            while (offset - index < length && (length >= 4))
+                            {
+                                int len = datas[offset];
+                                string propertyName = Encoding.UTF8.GetString(datas, offset + 1, len);
+                                offset += len + 1;
+                                PropertyInfo propertyInfo = type.GetProperty(propertyName);
 
-                            object obj = Deserialize(propertyInfo.PropertyType, datas, ref offset);
-                            propertyInfo.SetValue(instanceObject.Instance, obj);
+                                object obj = Deserialize(propertyInfo.PropertyType, datas, ref offset);
+                                propertyInfo.SetValue(instanceObject.Instance, obj);
+                            }
+                        }
+                        else
+                        { 
+                        
                         }
 
-                        //foreach (var item in instanceObject.Properties)
-                        //{
-
-                        //}
                         break;
                     }
                 case InstanceType.List:
@@ -348,7 +365,11 @@ namespace RRQMCore.Serialization
                         while (offset - index < length && (length >= 4))
                         {
                             offset += 4;
+                            offset += datas[offset] + 1;
+
                             object key = Deserialize(instanceObject.ArgTypes[0], datas, ref offset);
+
+                            offset += datas[offset] + 1;
                             object value = Deserialize(instanceObject.ArgTypes[1], datas, ref offset);
                             if (key != null)
                             {
