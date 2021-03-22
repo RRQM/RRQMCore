@@ -9,13 +9,9 @@
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RRQMCore.IO
 {
@@ -64,7 +60,6 @@ namespace RRQMCore.IO
                 return "0000000000000000000000000000000000000000";
             }
         }
-
 
         [DllImport("kernel32.dll")]
         private static extern IntPtr _lopen(string lpPathName, int iReadWrite);

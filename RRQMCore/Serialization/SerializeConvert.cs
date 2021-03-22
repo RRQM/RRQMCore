@@ -8,18 +8,13 @@
 //  感谢您的下载和使用
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
+using RRQMCore.ByteManager;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
-using System.Threading.Tasks;
-using System.Xml;
 using System.Xml.Serialization;
-using RRQMCore.ByteManager;
 
 namespace RRQMCore.Serialization
 {
@@ -28,8 +23,8 @@ namespace RRQMCore.Serialization
     /// </summary>
     public static class SerializeConvert
     {
-
         #region 普通二进制序列化
+
         /// <summary>
         /// 普通二进制序列化对象
         /// </summary>
@@ -70,7 +65,8 @@ namespace RRQMCore.Serialization
             BinaryFormatter bf = new BinaryFormatter();
             bf.Serialize(stream, obj);
         }
-        #endregion
+
+        #endregion 普通二进制序列化
 
         #region 普通二进制反序列化
 
@@ -113,6 +109,7 @@ namespace RRQMCore.Serialization
             }
             return (T)bf.Deserialize(stream);
         }
+
         /// <summary>
         /// 将二进制文件数据反序列化为指定类型对象
         /// </summary>
@@ -150,7 +147,8 @@ namespace RRQMCore.Serialization
         {
             return BinaryDeserialize<T>(data, 0, data.Length, binder);
         }
-        #endregion
+
+        #endregion 普通二进制反序列化
 
         #region RRQM二进制序列化
 
@@ -159,31 +157,34 @@ namespace RRQMCore.Serialization
         /// </summary>
         /// <param name="stream"></param>
         /// <param name="obj"></param>
+        /// <param name="reserveAttributeName"></param>
         /// <returns></returns>
-        public static void RRQMBinarySerialize(ByteBlock stream, object obj)
+        public static void RRQMBinarySerialize(ByteBlock stream, object obj, bool reserveAttributeName)
         {
             RRQMBinaryFormatter bf = new RRQMBinaryFormatter();
-            bf.Serialize(stream, obj);
+            bf.Serialize(stream, obj, reserveAttributeName);
         }
 
         /// <summary>
         /// RRQM二进制序列化对象
         /// </summary>
         /// <param name="obj"></param>
+        /// <param name="reserveAttributeName"></param>
         /// <returns></returns>
-        public static byte[] RRQMBinarySerialize(object obj)
+        public static byte[] RRQMBinarySerialize(object obj, bool reserveAttributeName)
         {
             using (ByteBlock byteBlock = new ByteBlock())
             {
                 byteBlock.SetBuffer(new byte[1024 * 10]);
-                RRQMBinarySerialize(byteBlock, obj);
+                RRQMBinarySerialize(byteBlock, obj, reserveAttributeName);
                 return byteBlock.ToArray();
             }
         }
 
-        #endregion
+        #endregion RRQM二进制序列化
 
         #region RRQM二进制反序列化
+
         /// <summary>
         /// 反序列化
         /// </summary>
@@ -220,9 +221,11 @@ namespace RRQMCore.Serialization
         {
             return RRQMBinaryDeserialize<T>(data, 0);
         }
-        #endregion
+
+        #endregion RRQM二进制反序列化
 
         #region Xml序列化和反序列化
+
         /// <summary>
         /// Xml序列化数据对象
         /// </summary>
@@ -257,7 +260,6 @@ namespace RRQMCore.Serialization
                 xml.Serialize(fileStream, obj);
                 return fileStream.ToArray();
             }
-
         }
 
         /// <summary>
@@ -274,7 +276,6 @@ namespace RRQMCore.Serialization
                 fileStream.Close();
             }
         }
-
 
         /// <summary>
         /// Xml反序列化
@@ -348,6 +349,6 @@ namespace RRQMCore.Serialization
             }
         }
 
-        #endregion
+        #endregion Xml序列化和反序列化
     }
 }

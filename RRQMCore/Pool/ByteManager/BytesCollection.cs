@@ -32,6 +32,7 @@ namespace RRQMCore.ByteManager
         public BytePool BytePool { get; internal set; }
 
         private ConcurrentQueue<ByteBlock> bytes = new ConcurrentQueue<ByteBlock>();
+
         /// <summary>
         /// 获取当前实例中的空闲的Block
         /// </summary>
@@ -40,7 +41,7 @@ namespace RRQMCore.ByteManager
         {
             ByteBlock byteBlock;
             this.bytes.TryDequeue(out byteBlock);
-            if (byteBlock!=null)
+            if (byteBlock != null)
             {
                 byteBlock.Using = true;
                 byteBlock.Position = 0;
@@ -59,7 +60,5 @@ namespace RRQMCore.ByteManager
             byteBlock.BytesCollection = this;
             this.bytes.Enqueue(byteBlock);
         }
-
-
     }
 }

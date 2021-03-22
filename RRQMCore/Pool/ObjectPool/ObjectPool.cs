@@ -9,11 +9,7 @@
 //------------------------------------------------------------------------------
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace RRQMCore.Pool
 {
@@ -37,10 +33,10 @@ namespace RRQMCore.Pool
         /// </summary>
         public ObjectPool()
         {
-
         }
 
         private ConcurrentQueue<T> queue = new ConcurrentQueue<T>();
+
         /// <summary>
         /// 对象池容量
         /// </summary>
@@ -50,6 +46,7 @@ namespace RRQMCore.Pool
         /// 可使用（创建）数量
         /// </summary>
         public int FreeSize { get { return this.freeSize; } }
+
         private int freeSize;
 
         /// <summary>
@@ -59,7 +56,6 @@ namespace RRQMCore.Pool
         {
             while (this.queue.TryDequeue(out _))
             {
-
             }
         }
 
@@ -96,7 +92,6 @@ namespace RRQMCore.Pool
                 Interlocked.Increment(ref this.freeSize);
                 this.queue.Enqueue(t);
             }
-
         }
 
         /// <summary>

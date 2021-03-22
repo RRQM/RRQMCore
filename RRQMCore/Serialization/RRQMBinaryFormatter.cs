@@ -8,16 +8,13 @@
 //  感谢您的下载和使用
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
+using RRQMCore.ByteManager;
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
-using RRQMCore.ByteManager;
 
 namespace RRQMCore.Serialization
 {
@@ -37,21 +34,45 @@ namespace RRQMCore.Serialization
         private static readonly Type decimalType = typeof(decimal);
         private static readonly Type dateTimeType = typeof(DateTime);
         private static readonly Type bytesType = typeof(byte[]);
+
         #region Serialize
+
         /// <summary>
         /// 序列化对象
         /// </summary>
         /// <param name="stream">流</param>
         /// <param name="graph">对象</param>
+        /// <param name="reserveAttributeName">保留属性名</param>
+        public void Serialize(ByteBlock stream, object graph, bool reserveAttributeName)
+        {
+            this.reserveAttributeName = reserveAttributeName;
+            stream.Position = 1;
+            SerializeObject(stream, graph);
+            if (reserveAttributeName)
+            {
+                stream.Buffer[0] = 1;
+            }
+            else
+            {
+                stream.Buffer[0] = 0;
+            }
+            stream.SetLength(stream.Position);
+        }
+
+        /// <summary>
+        /// 序列化对象
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <param name="graph"></param>
         public void Serialize(ByteBlock stream, object graph)
         {
-            SerializeObject(stream, graph);
+            Serialize(stream, graph, false);
         }
 
         /// <summary>
         /// 保留属性名
         /// </summary>
-        public bool reserveAttributeName;
+        private bool reserveAttributeName;
 
         private int SerializeObject(ByteBlock stream, object graph)
         {
@@ -185,7 +206,6 @@ namespace RRQMCore.Serialization
                         stream.Write(propertyBytes, 0, propertyBytes.Length);
                         len += propertyBytes.Length + 1;
                     }
-
                     len += SerializeObject(stream, property.GetValue(obj, null));
                 }
             }
@@ -205,10 +225,9 @@ namespace RRQMCore.Serialization
             return len;
         }
 
-        #endregion
+        #endregion Serialize
 
         #region Deserialize
-
 
         /// <summary>
         /// 反序列化
@@ -219,8 +238,22 @@ namespace RRQMCore.Serialization
         /// <returns></returns>
         public object Deserialize(byte[] data, int offset, Type type)
         {
+            if (data[offset] == 0)
+            {
+                this.reserveAttributeName = false;
+            }
+            else if (data[offset] == 1)
+            {
+                this.reserveAttributeName = true;
+            }
+            else
+            {
+                throw new RRQMCore.Exceptions.RRQMException("数据流解析错误");
+            }
+            offset += 1;
             return Deserialize(type, data, ref offset);
         }
+
         private object Deserialize(Type type, byte[] datas, ref int offset)
         {
             dynamic obj = null;
@@ -303,7 +336,6 @@ namespace RRQMCore.Serialization
                 {
                     throw new Exception("未定义的类型：" + type.ToString());
                 }
-
             }
             offset += len;
             return obj;
@@ -324,22 +356,25 @@ namespace RRQMCore.Serialization
                                 int len = datas[offset];
                                 string propertyName = Encoding.UTF8.GetString(datas, offset + 1, len);
                                 offset += len + 1;
-                                PropertyInfo propertyInfo = type.GetProperty(propertyName);
+                                PropertyInfo propertyInfo = type.GetProperty(propertyName, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
 
                                 object obj = Deserialize(propertyInfo.PropertyType, datas, ref offset);
                                 propertyInfo.SetValue(instanceObject.Instance, obj);
                             }
                         }
                         else
-                        { 
-                        
+                        {
+                            foreach (var item in instanceObject.Properties)
+                            {
+                                object obj = Deserialize(item.PropertyType, datas, ref offset);
+                                item.SetValue(instanceObject.Instance, obj);
+                            }
                         }
 
                         break;
                     }
                 case InstanceType.List:
                     {
-
                         int index = offset;
                         while (offset - index < length && (length >= 4))
                         {
@@ -365,17 +400,23 @@ namespace RRQMCore.Serialization
                         while (offset - index < length && (length >= 4))
                         {
                             offset += 4;
-                            offset += datas[offset] + 1;
+                            if (reserveAttributeName)
+                            {
+                                offset += datas[offset] + 1;
+                            }
 
                             object key = Deserialize(instanceObject.ArgTypes[0], datas, ref offset);
 
-                            offset += datas[offset] + 1;
+                            if (reserveAttributeName)
+                            {
+                                offset += datas[offset] + 1;
+                            }
+
                             object value = Deserialize(instanceObject.ArgTypes[1], datas, ref offset);
                             if (key != null)
                             {
                                 instanceObject.AddMethod.Invoke(instanceObject.Instance, new object[] { key, value });
                             }
-
                         }
 
                         break;
@@ -384,16 +425,16 @@ namespace RRQMCore.Serialization
                     break;
             }
 
-
             return instanceObject.Instance;
         }
 
+        #endregion Deserialize
 
-        #endregion
         private PropertyInfo[] GetProperties(Type type)
         {
             return type.GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
         }
+
         private static readonly ConcurrentDictionary<string, InstanceObject> InstanceCache = new ConcurrentDictionary<string, InstanceObject>();
 
         private InstanceObject GetOrAddInstance(Type type)

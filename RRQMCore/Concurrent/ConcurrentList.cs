@@ -8,13 +8,8 @@
 //  感谢您的下载和使用
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-using System;
 using System.Collections;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RRQMCore.Concurrent
 {
@@ -32,6 +27,7 @@ namespace RRQMCore.Concurrent
             this.list = new List<T>();
             this.locker = new object();
         }
+
         private List<T> list;
         private object locker;
 
@@ -100,7 +96,7 @@ namespace RRQMCore.Concurrent
         {
             lock (this.locker)
             {
-              return  this.Contains(item);
+                return this.Contains(item);
             }
         }
 
@@ -113,7 +109,7 @@ namespace RRQMCore.Concurrent
         {
             lock (this.locker)
             {
-                this.list.CopyTo(array,arrayIndex);
+                this.list.CopyTo(array, arrayIndex);
             }
         }
 
@@ -151,7 +147,7 @@ namespace RRQMCore.Concurrent
         {
             lock (this.locker)
             {
-                this.list.Insert(index,item);
+                this.list.Insert(index, item);
             }
         }
 
@@ -177,7 +173,7 @@ namespace RRQMCore.Concurrent
         {
             lock (this.locker)
             {
-                this.list.RemoveRange(index,count);
+                this.list.RemoveRange(index, count);
             }
         }
 

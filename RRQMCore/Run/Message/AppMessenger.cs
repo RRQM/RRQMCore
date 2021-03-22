@@ -8,19 +8,18 @@
 //  感谢您的下载和使用
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
+using RRQMCore.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using RRQMCore.Exceptions;
 
 namespace RRQMCore.Run
 {
     /*
     若汝棋茗
     */
+
     /// <summary>
     /// 消息通知类
     /// </summary>
@@ -36,7 +35,7 @@ namespace RRQMCore.Run
                             .ToArray();
             foreach (var v in types)
             {
-                IMessage  message = (IMessage)Activator.CreateInstance(v);
+                IMessage message = (IMessage)Activator.CreateInstance(v);
                 MethodInfo[] methods = message.GetType().GetMethods();
                 foreach (var item in methods)
                 {
@@ -56,7 +55,6 @@ namespace RRQMCore.Run
             }
         }
 
-       
         private static AppMessenger instance;
 
         /// <summary>
@@ -75,7 +73,7 @@ namespace RRQMCore.Run
             }
         }
 
-        Dictionary<string, TokenInstance> tokenAndInstance = new Dictionary<string, TokenInstance>();
+        private Dictionary<string, TokenInstance> tokenAndInstance = new Dictionary<string, TokenInstance>();
 
         /// <summary>
         /// 注册消息
@@ -95,10 +93,8 @@ namespace RRQMCore.Run
             }
             catch (Exception)
             {
-
                 throw new MessageRegisteredException("该Token消息已注册");
             }
-
         }
 
         /// <summary>
@@ -145,7 +141,6 @@ namespace RRQMCore.Run
             {
                 throw new MessageRegisteredException("该Token消息已注册");
             }
-
         }
 
         /// <summary>
@@ -220,7 +215,7 @@ namespace RRQMCore.Run
         /// 卸载消息
         /// </summary>
         /// <param name="messageObject"></param>
-        public void Unregister(IMessage messageObject )
+        public void Unregister(IMessage messageObject)
         {
             List<string> key = new List<string>();
 
@@ -262,7 +257,6 @@ namespace RRQMCore.Run
             {
                 throw new MessageNotFoundException("未找到该消息");
             }
-
         }
 
         /// <summary>

@@ -9,11 +9,7 @@
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RRQMCore.ByteManager
 {
@@ -24,7 +20,6 @@ namespace RRQMCore.ByteManager
     {
         internal ByteBlock()
         {
-
         }
 
         /// <summary>
@@ -69,6 +64,7 @@ namespace RRQMCore.ByteManager
         public override long Length { get { return length; } }
 
         internal long length;
+
         /// <summary>
         /// 容量
         /// </summary>
@@ -80,6 +76,7 @@ namespace RRQMCore.ByteManager
         public override long Position { get; set; }
 
         internal bool lengthChenged;
+
         /// <summary>
         /// 重新指定Buffer
         /// </summary>
@@ -117,7 +114,7 @@ namespace RRQMCore.ByteManager
         {
             if (this.Buffer.Length - this.Position < count)
             {
-                byte[] newBuffer = new byte[GetNewCapacity(this.Position+count-this.Buffer.Length)];
+                byte[] newBuffer = new byte[GetNewCapacity(count - this.Position)];
                 Array.Copy(this.Buffer, newBuffer, this.Buffer.Length);
                 this.Buffer = newBuffer;
                 this.lengthChenged = true;
@@ -130,9 +127,9 @@ namespace RRQMCore.ByteManager
         private int GetNewCapacity(long length)
         {
             int len = Buffer.Length;
-            while (this.Position+length>len)
+            while (this.Position + length > len)
             {
-                len= (int)(1.5*len);
+                len = (int)(1.5 * len);
             }
 
             return len;
@@ -167,7 +164,7 @@ namespace RRQMCore.ByteManager
         {
             if (this.Buffer.Length - this.Position < 1)
             {
-                byte[] newBuffer = new byte[GetNewCapacity(this.Position + 1 - this.Buffer.Length)];
+                byte[] newBuffer = new byte[GetNewCapacity(1)];
                 Array.Copy(this.Buffer, newBuffer, this.Buffer.Length);
                 this.Buffer = newBuffer;
                 this.lengthChenged = true;
@@ -188,13 +185,11 @@ namespace RRQMCore.ByteManager
             return buffer;
         }
 
-
         /// <summary>
         /// 无实际效果
         /// </summary>
         public override void Flush()
         {
-
         }
 
         /// <summary>
@@ -210,9 +205,11 @@ namespace RRQMCore.ByteManager
                 case SeekOrigin.Begin:
                     this.Position = offset;
                     break;
+
                 case SeekOrigin.Current:
                     this.Position = offset;
                     break;
+
                 case SeekOrigin.End:
                     this.Position = this.Length + offset;
                     break;
