@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  此代码版权归作者本人若汝棋茗所有
-//  源代码使用协议遵循本仓库的开源协议，若本仓库没有设置，则按MIT开源协议授权
+//  源代码使用协议遵循本仓库的开源协议及附加协议，若本仓库没有设置，则按MIT开源协议授权
 //  CSDN博客：https://blog.csdn.net/qq_40374647
 //  哔哩哔哩视频：https://space.bilibili.com/94253567
 //  源代码仓库：https://gitee.com/RRQM_Home
@@ -70,8 +70,6 @@ namespace RRQMCore.ByteManager
         public long CreatedBlockSize { get; private set; }
 
         private BytesDictionary bytesDictionary = new BytesDictionary();
-        private long id;
-
         /// <summary>
         /// 获取ByteBlock
         /// </summary>
@@ -102,7 +100,6 @@ namespace RRQMCore.ByteManager
                         byteBlock = bytesDictionary[byteSize].Get();
                         if (byteBlock != null)
                         {
-                            byteBlock.ID = Interlocked.Increment(ref id);
                             return byteBlock;
                         }
                     }
@@ -116,7 +113,6 @@ namespace RRQMCore.ByteManager
                                 byteBlock = bytesDictionary[size].Get();
                                 if (byteBlock != null)
                                 {
-                                    byteBlock.ID = Interlocked.Increment(ref id);
                                     return byteBlock;
                                 }
                             }
@@ -126,7 +122,7 @@ namespace RRQMCore.ByteManager
                     byteBlock = CreatByteBlock(byteSize);
                 }
             }
-            byteBlock.ID = Interlocked.Increment(ref id);
+            byteBlock.Using = true;
             return byteBlock;
         }
 
@@ -153,13 +149,12 @@ namespace RRQMCore.ByteManager
                 byteBlock = bytesDictionary[size].Get();
                 if (byteBlock != null)
                 {
-                    byteBlock.ID = Interlocked.Increment(ref id);
                     return byteBlock;
                 }
             }
             //未搜索到
             byteBlock = CreatByteBlock(this.MaxBlockSize);
-            byteBlock.ID = Interlocked.Increment(ref id);
+            byteBlock.Using = true;
             return byteBlock;
         }
 
@@ -170,7 +165,6 @@ namespace RRQMCore.ByteManager
                 throw new RRQMCore.Exceptions.RRQMException("申请内存的长度不能小于0");
             }
             ByteBlock byteBlock = new ByteBlock();
-            byteBlock.Using = true;
             byteBlock.Buffer = new byte[byteSize];
             if (isBelongPool && MaxSize - ActualSize >= byteSize)
             {

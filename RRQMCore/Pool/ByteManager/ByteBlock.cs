@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //  此代码版权归作者本人若汝棋茗所有
-//  源代码使用协议遵循本仓库的开源协议，若本仓库没有设置，则按MIT开源协议授权
+//  源代码使用协议遵循本仓库的开源协议及附加协议，若本仓库没有设置，则按MIT开源协议授权
 //  CSDN博客：https://blog.csdn.net/qq_40374647
 //  哔哩哔哩视频：https://space.bilibili.com/94253567
 //  源代码仓库：https://gitee.com/RRQM_Home
@@ -33,10 +33,10 @@ namespace RRQMCore.ByteManager
         public byte[] Buffer { get; internal set; }
 
         /// <summary>
-        /// 被创建时由池对象分配的唯一标识，
-        /// 可用于TryDispose
+        /// 表示持续性持有，为True时，Dispose将调用无效。
         /// </summary>
-        public long ID { get; internal set; }
+        public bool Holding { get;private set; }
+
 
         /// <summary>
         /// 使用状态
@@ -46,17 +46,17 @@ namespace RRQMCore.ByteManager
         /// <summary>
         /// 可读取
         /// </summary>
-        public override bool CanRead => true;
+        public override bool CanRead => this.Using;
 
         /// <summary>
         /// 支持查找
         /// </summary>
-        public override bool CanSeek => true;
+        public override bool CanSeek => this.Using;
 
         /// <summary>
         /// 可写入
         /// </summary>
-        public override bool CanWrite => true;
+        public override bool CanWrite => this.Using;
 
         /// <summary>
         /// 流长度
@@ -82,10 +82,31 @@ namespace RRQMCore.ByteManager
         /// </summary>
         public void SetBuffer(byte[] buffer)
         {
+            if (!this.Using)
+            {
+                throw new RRQMCore.Exceptions.RRQMException("内存块已释放");
+            }
             if (buffer != null)
             {
                 this.Buffer = buffer;
                 this.lengthChenged = true;
+            }
+        }
+
+        /// <summary>
+        /// 设置持续持有属性，当为False时，会自动调用Dispose。
+        /// </summary>
+        /// <param name="enable"></param>
+        public void SetHolding(bool enable)
+        {
+            if (!this.Using)
+            {
+                throw new RRQMCore.Exceptions.RRQMException("内存块已释放");
+            }
+            this.Holding = enable;
+            if (!enable)
+            {
+                this.Dispose();
             }
         }
 
@@ -98,6 +119,10 @@ namespace RRQMCore.ByteManager
         /// <returns></returns>
         public override int Read(byte[] buffer, int offset, int count)
         {
+            if (!this.Using)
+            {
+                throw new RRQMCore.Exceptions.RRQMException("内存块已释放");
+            }
             int len = this.Buffer.Length - this.Position > count ? count : this.Buffer.Length - (int)this.Position;
             Array.Copy(this.Buffer, this.Position, buffer, offset, len);
             this.Position += len;
@@ -112,9 +137,13 @@ namespace RRQMCore.ByteManager
         /// <param name="count"></param>
         public override void Write(byte[] buffer, int offset, int count)
         {
+            if (!this.Using)
+            {
+                throw new RRQMCore.Exceptions.RRQMException("内存块已释放");
+            }
             if (this.Buffer.Length - this.Position < count)
             {
-                byte[] newBuffer = new byte[GetNewCapacity(count - this.Position)];
+                byte[] newBuffer = new byte[this.Buffer.Length+count];
                 Array.Copy(this.Buffer, newBuffer, this.Buffer.Length);
                 this.Buffer = newBuffer;
                 this.lengthChenged = true;
@@ -122,17 +151,6 @@ namespace RRQMCore.ByteManager
             Array.Copy(buffer, offset, Buffer, this.Position, count);
             this.Position += count;
             this.length += count;
-        }
-
-        private int GetNewCapacity(long length)
-        {
-            int len = Buffer.Length;
-            while (this.Position + length > len)
-            {
-                len = (int)(1.5 * len);
-            }
-
-            return len;
         }
 
         /// <summary>
@@ -162,9 +180,13 @@ namespace RRQMCore.ByteManager
         /// <returns></returns>
         public void Write(byte byteBuffer)
         {
+            if (!this.Using)
+            {
+                throw new RRQMCore.Exceptions.RRQMException("内存块已释放");
+            }
             if (this.Buffer.Length - this.Position < 1)
             {
-                byte[] newBuffer = new byte[GetNewCapacity(1)];
+                byte[] newBuffer = new byte[this.Buffer.Length + 1024];
                 Array.Copy(this.Buffer, newBuffer, this.Buffer.Length);
                 this.Buffer = newBuffer;
                 this.lengthChenged = true;
@@ -180,6 +202,10 @@ namespace RRQMCore.ByteManager
         /// <returns></returns>
         public byte[] ToArray()
         {
+            if (!this.Using)
+            {
+                throw new RRQMCore.Exceptions.RRQMException("内存块已释放");
+            }
             byte[] buffer = new byte[this.Length];
             Array.Copy(this.Buffer, 0, buffer, 0, this.Length);
             return buffer;
@@ -200,6 +226,10 @@ namespace RRQMCore.ByteManager
         /// <returns></returns>
         public override long Seek(long offset, SeekOrigin origin)
         {
+            if (!this.Using)
+            {
+                throw new RRQMCore.Exceptions.RRQMException("内存块已释放");
+            }
             switch (origin)
             {
                 case SeekOrigin.Begin:
@@ -223,6 +253,10 @@ namespace RRQMCore.ByteManager
         /// <param name="value"></param>
         public override void SetLength(long value)
         {
+            if (!this.Using)
+            {
+                throw new RRQMCore.Exceptions.RRQMException("内存块已释放");
+            }
             if (value > this.Buffer.Length)
             {
                 throw new RRQMCore.Exceptions.RRQMException("设置值超出容量");
@@ -235,29 +269,15 @@ namespace RRQMCore.ByteManager
         /// </summary>
         public new void Dispose()
         {
+            if (this.Holding)
+            {
+                return;
+            }
             if (this.BytesCollection != null)
             {
                 this.BytesCollection.BytePool.OnByteBlockRecycle(this);
             }
         }
 
-        /// <summary>
-        /// 尝试释放内存块，
-        /// 当ID不匹配时，不进行释放
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns>释放结果</returns>
-        public bool TryDispose(long id)
-        {
-            if (id == this.ID)
-            {
-                if (this.BytesCollection != null)
-                {
-                    this.BytesCollection.BytePool.OnByteBlockRecycle(this);
-                }
-                return true;
-            }
-            return false;
-        }
     }
 }
