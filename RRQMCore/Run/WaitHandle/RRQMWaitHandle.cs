@@ -8,7 +8,9 @@
 //  感谢您的下载和使用
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace RRQMCore.Run
 {
@@ -23,10 +25,10 @@ namespace RRQMCore.Run
         /// </summary>
         public RRQMWaitHandle()
         {
-            waitDic = new Dictionary<int, WaitData<T>>();
+            waitDic = new ConcurrentDictionary<int, WaitData<T>>();
         }
 
-        private Dictionary<int, WaitData<T>> waitDic;
+        private ConcurrentDictionary<int, WaitData<T>> waitDic;
 
         private int sign;
 
@@ -35,22 +37,29 @@ namespace RRQMCore.Run
         /// </summary>
         public WaitData<T> GetWaitData()
         {
-            lock (this)
+            WaitData<T> waitData;
+            foreach (int item in waitDic.Keys)
             {
-                foreach (WaitData<T> item in waitDic.Values)
+                waitData = waitDic[item];
+                lock (this)
                 {
-                    if (item.dispose)
+                    if (waitData.dispose)
                     {
-                        item.dispose = false;
-                        return item;
+                        this.waitDic.TryRemove(item, out _);
+                        waitData.WaitResult.Sign = Interlocked.Increment(ref sign);
+                        waitData.dispose = false;
+                        this.waitDic.TryAdd(waitData.WaitResult.Sign, waitData);
+                        return waitData;
                     }
                 }
-                WaitData<T> waitData = new WaitData<T>();
-                waitData.WaitResult = new T();
-                waitData.WaitResult.Sign = sign++;
-                this.waitDic.Add(waitData.WaitResult.Sign, waitData);
-                return waitData;
             }
+
+            waitData = new WaitData<T>();
+            waitData.WaitResult = new T();
+            waitData.WaitResult.Sign = Interlocked.Increment(ref sign);
+            this.waitDic.TryAdd(waitData.WaitResult.Sign, waitData);
+            return waitData;
+
         }
 
         /// <summary>
@@ -59,13 +68,9 @@ namespace RRQMCore.Run
         /// <param name="sign"></param>
         public void SetRun(int sign)
         {
-            if (this.waitDic.ContainsKey(sign))
+            WaitData<T> waitData;
+            if (this.waitDic.TryGetValue(sign, out waitData))
             {
-                WaitData<T> waitData;
-                lock (this)
-                {
-                    waitData = this.waitDic[sign];
-                }
                 waitData.WaitResult.Sign = sign;
                 waitData.Set();
             }
@@ -78,13 +83,10 @@ namespace RRQMCore.Run
         /// <param name="waitResult"></param>
         public void SetRun(int sign, T waitResult)
         {
-            if (this.waitDic.ContainsKey(sign))
+            WaitData<T> waitData;
+            if (this.waitDic.TryGetValue(sign, out waitData))
             {
-                WaitData<T> waitData;
-                lock (this)
-                {
-                    waitData = this.waitDic[sign];
-                }
+                waitData.WaitResult.Sign = sign;
                 waitData.Set(waitResult);
             }
         }
@@ -95,13 +97,10 @@ namespace RRQMCore.Run
         /// <param name="waitResult"></param>
         public void SetRun(T waitResult)
         {
-            if (this.waitDic.ContainsKey(waitResult.Sign))
+            WaitData<T> waitData;
+            if (this.waitDic.TryGetValue(sign, out waitData))
             {
-                WaitData<T> waitData;
-                lock (this)
-                {
-                    waitData = this.waitDic[waitResult.Sign];
-                }
+                waitData.WaitResult.Sign = sign;
                 waitData.Set(waitResult);
             }
         }

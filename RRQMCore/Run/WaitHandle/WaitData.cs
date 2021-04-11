@@ -38,9 +38,9 @@ namespace RRQMCore.Run
         /// 等待指定毫秒
         /// </summary>
         /// <param name="millisecond"></param>
-        public void Wait(int millisecond)
+        public bool Wait(int millisecond)
         {
-            this.waitHandle.WaitOne(millisecond);
+           return this.waitHandle.WaitOne(millisecond);
         }
 
         /// <summary>
@@ -68,7 +68,6 @@ namespace RRQMCore.Run
         /// </summary>
         public void Dispose()
         {
-            this.WaitResult = default(T);
             this.dispose = true;
         }
     }

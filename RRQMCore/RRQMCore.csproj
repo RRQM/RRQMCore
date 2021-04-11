@@ -6,16 +6,17 @@
 		<Authors>若汝棋茗</Authors>
 		<PackageIcon>RRQM.png</PackageIcon>
     <Copyright>Copyright © 2021 若汝棋茗</Copyright>
-    <Version>1.2.12</Version>
+    <Version>1.2.13</Version>
     <SignAssembly>true</SignAssembly>
 		<Description>
       此程序集是RRQM的核心开源库，其中包含了内存池、高性能序列化、日志接口在内的很多基本内容。
 
-      更新时间：2021.04.02
+      更新时间：2021.04.11
 
       更新内容：
       1.删除：ByteBlock类，ID标识和TryDispose。
       2.修改：ByteBlock类，写入、读取异常抛出。
+      3.修改：RRQMEventAgrs类。
     </Description>
 		<PackageProjectUrl>https://gitee.com/RRQM_Home/RRQMCore</PackageProjectUrl>
 		<AssemblyOriginatorKeyFile>RRQM.pfx</AssemblyOriginatorKeyFile>
