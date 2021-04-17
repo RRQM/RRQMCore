@@ -357,7 +357,10 @@ namespace RRQMCore.Serialization
                                 string propertyName = Encoding.UTF8.GetString(datas, offset + 1, len);
                                 offset += len + 1;
                                 PropertyInfo propertyInfo = type.GetProperty(propertyName, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-
+                                if (propertyInfo==null)
+                                {
+                                    continue;
+                                }
                                 object obj = Deserialize(propertyInfo.PropertyType, datas, ref offset);
                                 propertyInfo.SetValue(instanceObject.Instance, obj);
                             }

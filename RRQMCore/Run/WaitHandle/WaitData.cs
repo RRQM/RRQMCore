@@ -38,9 +38,9 @@ namespace RRQMCore.Run
         /// 等待指定毫秒
         /// </summary>
         /// <param name="millisecond"></param>
-        public bool Wait(int millisecond)
+        public void Wait(int millisecond)
         {
-           return this.waitHandle.WaitOne(millisecond);
+            this.waitHandle.WaitOne(millisecond);
         }
 
         /// <summary>

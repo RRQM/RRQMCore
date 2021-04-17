@@ -80,6 +80,18 @@ namespace RRQMCore.Pool
             t.NewCreat = true;
             return t;
         }
+        
+        
+        /// <summary>
+        /// 预获取
+        /// </summary>
+        /// <returns></returns>
+        public T PreviewGetObject()
+        {
+            T t;
+            this.queue.TryPeek(out t);
+            return t;
+        }
 
         /// <summary>
         /// 注销对象
