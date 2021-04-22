@@ -41,12 +41,6 @@ namespace RRQMCore.ByteManager
         {
             ByteBlock byteBlock;
             this.bytes.TryDequeue(out byteBlock);
-            if (byteBlock != null)
-            {
-                byteBlock.Using = true;
-                byteBlock.Position = 0;
-                byteBlock.length = 0;
-            }
             return byteBlock;
         }
 

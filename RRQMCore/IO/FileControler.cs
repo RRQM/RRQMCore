@@ -29,7 +29,7 @@ namespace RRQMCore.IO
         {
             try
             {
-                HashAlgorithm hash = HashAlgorithm.Create();
+                HashAlgorithm hash = SHA256.Create();
                 using (FileStream fileStream = File.OpenRead(filePath))
                 {
                     byte[] HashValue = hash.ComputeHash(fileStream);
@@ -38,7 +38,7 @@ namespace RRQMCore.IO
             }
             catch
             {
-                return "0000000000000000000000000000000000000000";
+                return null;
             }
         }
 
@@ -51,15 +51,17 @@ namespace RRQMCore.IO
         {
             try
             {
-                HashAlgorithm hash = HashAlgorithm.Create();
+                HashAlgorithm hash = SHA256.Create();
                 byte[] HashValue = hash.ComputeHash(stream);
                 return BitConverter.ToString(HashValue).Replace("-", "");
             }
             catch
             {
-                return "0000000000000000000000000000000000000000";
+                return null;
             }
         }
+
+
 
         [DllImport("kernel32.dll")]
         private static extern IntPtr _lopen(string lpPathName, int iReadWrite);

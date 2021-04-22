@@ -100,6 +100,9 @@ namespace RRQMCore.ByteManager
                         byteBlock = bytesDictionary[byteSize].Get();
                         if (byteBlock != null)
                         {
+                            byteBlock.Using = true;
+                            byteBlock.Position = 0;
+                            byteBlock.length = 0;
                             return byteBlock;
                         }
                     }
@@ -113,6 +116,9 @@ namespace RRQMCore.ByteManager
                                 byteBlock = bytesDictionary[size].Get();
                                 if (byteBlock != null)
                                 {
+                                    byteBlock.Using = true;
+                                    byteBlock.Position = 0;
+                                    byteBlock.length = 0;
                                     return byteBlock;
                                 }
                             }
@@ -123,6 +129,8 @@ namespace RRQMCore.ByteManager
                 }
             }
             byteBlock.Using = true;
+            byteBlock.Position = 0;
+            byteBlock.length = 0;
             return byteBlock;
         }
 
@@ -149,6 +157,9 @@ namespace RRQMCore.ByteManager
                 byteBlock = bytesDictionary[size].Get();
                 if (byteBlock != null)
                 {
+                    byteBlock.Using = true;
+                    byteBlock.Position = 0;
+                    byteBlock.length = 0;
                     return byteBlock;
                 }
             }
