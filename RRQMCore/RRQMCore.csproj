@@ -5,17 +5,15 @@
 		<Authors>若汝棋茗</Authors>
 		<PackageIcon>RRQM.png</PackageIcon>
     <Copyright>Copyright © 2021 若汝棋茗</Copyright>
-    <Version>1.2.18</Version>
+    <Version>1.2.19</Version>
     <SignAssembly>true</SignAssembly>
-		<Description>
-      此程序集是RRQM的核心开源库，其中包含了内存池、高性能序列化、日志接口在内的很多基本内容。
+		<Description>此程序集是RRQM的核心开源库，其中包含了内存池、高性能序列化、日志接口在内的很多基本内容。
+更新时间：2021.05.06
 
-      更新时间：2021.04.22
-
-      更新内容：
-      1.修改：文件Hash算法获取。
-    </Description>
-		<PackageProjectUrl>https://gitee.com/RRQM_Home/RRQMCore</PackageProjectUrl>
+更新内容：
+1.增加：Helper命名空间。
+</Description>
+		<PackageProjectUrl>https://gitee.com/RRQM_OS/RRQMCore</PackageProjectUrl>
 		<AssemblyOriginatorKeyFile>RRQM.pfx</AssemblyOriginatorKeyFile>
 		<ApplicationIcon>RRQM.ico</ApplicationIcon>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
