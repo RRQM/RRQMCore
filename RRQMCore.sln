@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30907.101
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RRQMCore", "RRQMCore\RRQMCore.csproj", "{9CCFC429-22D1-4AF1-B970-FF4A342AD231}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RRQMCore", "RRQMCore\RRQMCore.csproj", "{9CCFC429-22D1-4AF1-B970-FF4A342AD231}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RRQMCore.Test", "RRQMCore.Test\RRQMCore.Test.csproj", "{FF0AAC09-6AB6-4D6C-8C78-6C0ACF0E3526}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{9CCFC429-22D1-4AF1-B970-FF4A342AD231}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9CCFC429-22D1-4AF1-B970-FF4A342AD231}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9CCFC429-22D1-4AF1-B970-FF4A342AD231}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FF0AAC09-6AB6-4D6C-8C78-6C0ACF0E3526}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF0AAC09-6AB6-4D6C-8C78-6C0ACF0E3526}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF0AAC09-6AB6-4D6C-8C78-6C0ACF0E3526}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF0AAC09-6AB6-4D6C-8C78-6C0ACF0E3526}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -9,6 +9,7 @@
 //  感谢您的下载和使用
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
+using System;
 using System.Collections.Generic;
 
 namespace RRQMCore.Helper
@@ -54,6 +55,59 @@ namespace RRQMCore.Helper
             }
 
             return s.ToArray();
+        }
+        
+        /// <summary>
+        /// 将字符串转换为指定类型
+        /// </summary>
+        /// <param name="str"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static object ParseToType(this string str,Type type)
+        {
+            dynamic obj=null;
+            if (type == RRQMReadonly.stringType)
+            {
+                obj = str;
+            }
+            else if (type == RRQMReadonly.byteType)
+            {
+                obj = byte.Parse(str);
+            }
+            else if (type == RRQMReadonly.boolType)
+            {
+                obj = bool.Parse(str);
+            }
+            else if (type == RRQMReadonly.shortType)
+            {
+                obj = short.Parse(str);
+            }
+            else if (type == RRQMReadonly.intType)
+            {
+                obj = int.Parse(str);
+            }
+            else if (type == RRQMReadonly.longType)
+            {
+                obj = long.Parse(str);
+            }
+            else if (type == RRQMReadonly.floatType)
+            {
+                obj = float.Parse(str);
+            }
+            else if (type == RRQMReadonly.doubleType)
+            {
+                obj = double.Parse(str);
+            }
+            else if (type == RRQMReadonly.decimalType)
+            {
+                obj = decimal.Parse(str);
+            }
+            else if (type == RRQMReadonly.dateTimeType)
+            {
+                obj = DateTime.Parse(str);
+            }
+       
+            return obj;
         }
     }
 }

@@ -23,17 +23,7 @@ namespace RRQMCore.Serialization
     /// </summary>
     public class RRQMBinaryFormatter
     {
-        private static readonly Type stringType = typeof(string);
-        private static readonly Type byteType = typeof(byte);
-        private static readonly Type shortType = typeof(short);
-        private static readonly Type intType = typeof(int);
-        private static readonly Type boolType = typeof(bool);
-        private static readonly Type longType = typeof(long);
-        private static readonly Type floatType = typeof(float);
-        private static readonly Type doubleType = typeof(double);
-        private static readonly Type decimalType = typeof(decimal);
-        private static readonly Type dateTimeType = typeof(DateTime);
-        private static readonly Type bytesType = typeof(byte[]);
+       
 
         #region Serialize
 
@@ -123,15 +113,15 @@ namespace RRQMCore.Serialization
                 {
                     var enumValType = Enum.GetUnderlyingType(graph.GetType());
 
-                    if (enumValType == byteType)
+                    if (enumValType ==RRQMReadonly. byteType)
                     {
                         data = new byte[] { (byte)graph };
                     }
-                    else if (enumValType == shortType)
+                    else if (enumValType == RRQMReadonly.shortType)
                     {
                         data = BitConverter.GetBytes((short)graph);
                     }
-                    else if (enumValType == intType)
+                    else if (enumValType == RRQMReadonly.intType)
                     {
                         data = BitConverter.GetBytes((int)graph);
                     }
@@ -261,43 +251,43 @@ namespace RRQMCore.Serialization
             offset += 4;
             if (len > 0)
             {
-                if (type == stringType)
+                if (type == RRQMReadonly.stringType)
                 {
                     obj = Encoding.UTF8.GetString(datas, offset, len);
                 }
-                else if (type == byteType)
+                else if (type == RRQMReadonly.byteType)
                 {
                     obj = datas[offset];
                 }
-                else if (type == boolType)
+                else if (type == RRQMReadonly.boolType)
                 {
                     obj = (BitConverter.ToBoolean(datas, offset));
                 }
-                else if (type == shortType)
+                else if (type == RRQMReadonly.shortType)
                 {
                     obj = (BitConverter.ToInt16(datas, offset));
                 }
-                else if (type == intType)
+                else if (type == RRQMReadonly.intType)
                 {
                     obj = (BitConverter.ToInt32(datas, offset));
                 }
-                else if (type == longType)
+                else if (type == RRQMReadonly.longType)
                 {
                     obj = (BitConverter.ToInt64(datas, offset));
                 }
-                else if (type == floatType)
+                else if (type == RRQMReadonly.floatType)
                 {
                     obj = (BitConverter.ToSingle(datas, offset));
                 }
-                else if (type == doubleType)
+                else if (type == RRQMReadonly.doubleType)
                 {
                     obj = (BitConverter.ToDouble(datas, offset));
                 }
-                else if (type == decimalType)
+                else if (type == RRQMReadonly.decimalType)
                 {
                     obj = (BitConverter.ToDouble(datas, offset));
                 }
-                else if (type == dateTimeType)
+                else if (type == RRQMReadonly.dateTimeType)
                 {
                     obj = (new DateTime(long.Parse(Encoding.UTF8.GetString(datas, offset, len))));
                 }
@@ -322,7 +312,7 @@ namespace RRQMCore.Serialization
                         obj = Enum.ToObject(type, BitConverter.ToInt64(datas, offset));
                     }
                 }
-                else if (type == bytesType)
+                else if (type == RRQMReadonly.bytesType)
                 {
                     byte[] data = new byte[len];
                     Buffer.BlockCopy(datas, offset, data, 0, len);
