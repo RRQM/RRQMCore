@@ -49,6 +49,15 @@ namespace RRQMCore.Helper
             }
         }
 
-       
+        /// <summary>
+        /// 获取默认值
+        /// </summary>
+        /// <param name="targetType"></param>
+        /// <returns></returns>
+        public static object GetDefault(this Type targetType)
+        {
+            return targetType.IsValueType ? Activator.CreateInstance(targetType) : null;
+        }
+
     }
 }
