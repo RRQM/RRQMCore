@@ -1,7 +1,3 @@
-<head> 
-    <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/all.js"></script> 
-    <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/v4-shims.js"></script> 
-</head> 
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css">
 <p></p>
 <p></p>
@@ -61,6 +57,9 @@
 
 ## 内存池（BytePool）
 内存池的基本单元是内存块（ByteBlock），内存块是继承自Stream的实际内存，它具有和MemoryStream一样的功能和效率，同时也具备Byte数组的灵活，最重要的是可回收，可扩展。
+
+#### 创建、使用、回收
+
 ``` CSharp
 BytePool bytePool = new BytePool(1024 * 1024 * 100, 1024 * 1024);
 
@@ -83,8 +82,149 @@ byteBlock2.Dispose();
 byteBlock3.Dispose();//回收至内存池
 
 ```
+#### 高级功能
+**1.长期持有**
+使Dispose失效
+``` CSharp
+byteBlock.SetHolding(true);
+```
+**2.操作Byte数组**
+Buffer属性为Byte[]类型，可以直接参与Byte[]运算。
+``` CSharp
+byteBlock.Buffer
+```
+#### 性能对比
+1.获取10w次64kb内存
+![](https://i.loli.net/2021/05/11/ZnP17IhUpikYTjA.jpg)
 
+2.获取10w次1Mb内存
+![](https://i.loli.net/2021/05/11/9I2QydTxWi4MKpo.jpg)
 
+## 对象池
+对象池是为避免重复创建、销毁对象而设立的。
+
+#### 创建、使用对象池
+``` CSharp
+ObjectPool<MyObject> objectPool = new ObjectPool<MyObject>();
+MyObject myObject= objectPool.GetObject();
+objectPool.DestroyObject(myObject);
+```
+
+``` CSharp
+class MyObject : IPoolObject
+{
+    public bool NewCreat { get; set ; }
+
+    public void Create()
+    {
+        
+    }
+
+    public void Destroy()
+    {
+        
+    }
+
+    public void Recreate()
+    {
+        
+    }
+}
+```
+##  等待逻辑池
+
+等待逻辑池是封装EventWaitHandle后的池产物，以达到多线程等待返回结果的目的。
+
+``` CSharp
+RRQMWaitHandle<MyWaitResult> waitHandle = new RRQMWaitHandle<MyWaitResult>();
+WaitData<MyWaitResult> waitData = waitHandle.GetWaitData();
+waitData.Wait(10*1000);
+
+waitData.Set(new MyWaitResult());
+
+MyWaitResult myWaitResult = waitData.WaitResult;
+```
+
+``` CSharp
+class MyWaitResult : WaitResult
+{
+
+}
+```
+
+## AppMessenger
+AppMessenger是在App域内能够传递消息、调用方法的信使。
+``` CSharp
+//注册静态方法
+AppMessenger.Default.Register(null, "SayHelloOne", MyMessage.SayHelloOne);
+
+//注册实例单个方法
+MyMessage myMessage = new MyMessage();
+AppMessenger.Default.Register(myMessage, "SayHelloTwo", myMessage.SayHelloTwo);
+
+//注册实例中被RegistMethod标记的公共方法。
+AppMessenger.Default.Register(new MyMessage());
+
+//触发已注册的SayHelloOne方法
+AppMessenger.Default.Send("SayHelloOne", null);
+
+//触发已注册的SayHelloThree方法，传入string参数，返回string参数。
+string mes = AppMessenger.Default.Send<string>("SayHelloThree", "若汝棋茗");
+
+```
+``` CSharp
+public class MyMessage : IMessage
+{
+    public static void SayHelloOne()
+    {
+
+    }
+
+    public void SayHelloTwo()
+    {
+
+    }
+
+    [RegistMethod]
+    public string SayHelloThree(string name)
+    {
+        return "SayHelloThree";
+    }
+}
+
+```
+
+## 3DES加密
+``` CSharp
+DataLock.EncryptDES(new byte[10], "RRQM1234");
+byte[] data = DataLock.DecryptDES(new byte[10], "RRQM1234");
+```
+
+## Xml快速存取
+``` CSharp
+XmlTool xmlTool = new XmlTool("Test.xml");
+
+//储存单节点、单属性值
+xmlTool.AttributeStorage("Node1", "AttributeName", "AttributeValue");
+
+//储存单节点、多属性值
+string[] attributeNames = new string[] { "A1", "A2" };
+string[] attributeValues = new string[] { "V1", "V2" };
+xmlTool.AttributeStorage("Node2", attributeNames, attributeValues);
+
+//储存多节点、多属性
+string[] nades = new string[] { "N1", "N2" };
+xmlTool.AttributeStorage(nades, attributeNames, attributeValues);
+
+//判断Node1节点是否存在
+xmlTool.NodeExist("Node1");
+
+//获取Node1节点下，属性名为AttributeName的属性值。
+string attributeValue = xmlTool.SearchWords("Node1", "AttributeName");
+
+//获取Node2下所有属性集合，并包装为字典
+Dictionary<string, string> attributes = xmlTool.SearchAllAttributes("Node2");
+```
 
 ## 致谢
 
