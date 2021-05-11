@@ -1,3 +1,8 @@
+<head> 
+    <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/all.js"></script> 
+    <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/v4-shims.js"></script> 
+</head> 
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css">
 <p></p>
 <p></p>
 <p align="center">
@@ -47,15 +52,37 @@
  - [源代码仓库主页](https://gitee.com/RRQM_Home) 
  - 交流QQ群：234762506
 
-## ✨API文档
-
-[RRQMCore API文档](https://gitee.com/dotnetchina/RRQMCore/wikis/pages)
 
  
 ## 📦 安装
 
 - [Nuget RRQMCore](https://www.nuget.org/packages/RRQMCore/)
 - [微软Nuget安装教程](https://docs.microsoft.com/zh-cn/nuget/quickstart/install-and-use-a-package-in-visual-studio)
+
+## 内存池（BytePool）
+内存池的基本单元是内存块（ByteBlock），内存块是继承自Stream的实际内存，它具有和MemoryStream一样的功能和效率，同时也具备Byte数组的灵活，最重要的是可回收，可扩展。
+``` CSharp
+BytePool bytePool = new BytePool(1024 * 1024 * 100, 1024 * 1024);
+
+//获取任意长度的空闲ByteBlock，如果没有空闲，则创建一个最大单元
+ByteBlock byteBlock1 = bytePool.GetByteBlock();
+
+//获取不小于64kb长度ByteBlock
+ByteBlock byteBlock2 = bytePool.GetByteBlock(1024 * 64);
+
+//获取64kb长度ByteBlock，且必须为64kb
+ByteBlock byteBlock3 = bytePool.GetByteBlock(1024 * 64, true);
+
+byteBlock1.Write(10);//写入byte
+byte[] buffer = new byte[1024];
+new Random().NextBytes(buffer);
+byteBlock1.Write(new byte[1024]);//写入byte[]
+
+byteBlock1.Dispose();
+byteBlock2.Dispose();
+byteBlock3.Dispose();//回收至内存池
+
+```
 
 
 
@@ -80,4 +107,6 @@
 > 3.Coffee
 
 <img src="https://images.gitee.com/uploads/images/2021/0330/234046_7662fb8c_8553710.png" width = "600" height = "400" alt="图片名称" align=center />
+
+
 
