@@ -56,6 +56,7 @@
 - [微软Nuget安装教程](https://docs.microsoft.com/zh-cn/nuget/quickstart/install-and-use-a-package-in-visual-studio)
 
 ## 内存池（BytePool）
+
 内存池的基本单元是内存块（ByteBlock），内存块是继承自Stream的实际内存，它具有和MemoryStream一样的功能和效率，同时也具备Byte数组的灵活，最重要的是可回收，可扩展。
 
 #### 创建、使用、回收
@@ -83,21 +84,24 @@ byteBlock3.Dispose();//回收至内存池
 
 ```
 #### 高级功能
+
 **1.长期持有**
-使Dispose失效
+
+使Dispose失效，在使用完成后，再次调用传false即可回收（结束后不可再调Dispose，避免重复释放）。
 ``` CSharp
 byteBlock.SetHolding(true);
 ```
 **2.操作Byte数组**
+
 Buffer属性为Byte[]类型，可以直接参与Byte[]运算。
 ``` CSharp
 byteBlock.Buffer
 ```
 #### 性能对比
-1.获取10w次64kb内存
+**获取10w次64kb内存**
 ![](https://i.loli.net/2021/05/11/ZnP17IhUpikYTjA.jpg)
 
-2.获取10w次1Mb内存
+**获取10w次1Mb内存**
 ![](https://i.loli.net/2021/05/11/9I2QydTxWi4MKpo.jpg)
 
 ## 对象池
@@ -195,6 +199,7 @@ public class MyMessage : IMessage
 ```
 
 ## 3DES加密
+
 ``` CSharp
 DataLock.EncryptDES(new byte[10], "RRQM1234");
 byte[] data = DataLock.DecryptDES(new byte[10], "RRQM1234");
@@ -225,6 +230,225 @@ string attributeValue = xmlTool.SearchWords("Node1", "AttributeName");
 //获取Node2下所有属性集合，并包装为字典
 Dictionary<string, string> attributes = xmlTool.SearchAllAttributes("Node2");
 ```
+
+## 时间控制
+
+#### 运行时间测量器
+
+TimeMeasurer是对Stopwatch的封装，方便调用测试代码片运行时间。
+
+``` CSharp
+TimeSpan timeSpan = TimeMeasurer.Run(() =>
+  {
+      for (int i = 0; i < 1000; i++)
+      {
+          Console.WriteLine(i);
+      }
+  });
+
+Console.WriteLine(timeSpan);
+```
+#### 延迟时间运行使
+
+TimeRun类可以延迟执行委托。
+
+``` CSharp
+Action action = new Action(()=> { Console.WriteLine("Hello"); });
+TimeRun.Run(action,2);//延迟两秒执行
+TimeRun.Run(action,TimeSpan.FromSeconds(2));//延迟两秒执行
+```
+
+## 文件快捷操作
+
+``` CSharp
+ //判断该文件时候已在打开状态
+ FileControler.FileIsOpen("C:/1.txt");
+
+ //获取文件SHA256值，转为大写16进制
+ FileControler.GetFileHash("C:/1.txt");
+
+```
+
+## 序列化器
+
+#### 高性能序列化器（RRQMBinaryFormatter）
+
+RRQMBinaryFormatter类用法基本和BinaryFormatter一致。
+
+``` CSharp
+RRQMBinaryFormatter bf = new RRQMBinaryFormatter();
+bf.Serialize(stream, new object(), true);//布尔值标识是否保存属性名。
+
+```
+
+#### 简易序列化操作
+
+在RRQMCore中已经封装了简单操作的序列化、反序列化类，具体操作如下：
+
+``` CSharp
+string obj = "RRQM";
+
+//用系统二进制序列化、反序列化
+byte[] data1 = SerializeConvert.BinarySerialize(obj);
+string newObj = SerializeConvert.BinaryDeserialize<string>(data1);
+
+//用系统二进制序列化至文件、反序列化
+SerializeConvert.BinarySerializeToFile(obj, "C:/1.txt");
+string newFileObj = SerializeConvert.BinaryDeserializeFromFile<string>("C:/1.txt");
+
+//用RRQM二进制序列化、反序列化
+byte[] data2 = SerializeConvert.RRQMBinarySerialize(obj, true);
+string newRRQMObj = SerializeConvert.RRQMBinaryDeserialize<string>(data2, 0);
+
+//用Xml序列化、反序列化
+byte[] data3 = SerializeConvert.XmlSerializeToBytes(obj);
+string newXmlObj = SerializeConvert.XmlDeserializeFromBytes<string>(data3);
+
+```
+
+#### 性能对比
+
+**待测试类**
+
+``` CSharp
+ [Serializable]
+public class Student
+{
+    public int P1 { get; set; }
+    public string P2 { get; set; }
+    public long P3 { get; set; }
+    public byte P4 { get; set; }
+    public DateTime P5 { get; set; }
+    public double P6 { get; set; }
+    public byte[] P7 { get; set; }
+
+    public List<int> List1 { get; set; }
+    public List<string> List2 { get; set; }
+    public List<byte[]> List3 { get; set; }
+
+    public Dictionary<int, int> Dic1 { get; set; }
+    public Dictionary<int, string> Dic2 { get; set; }
+    public Dictionary<string, string> Dic3 { get; set; }
+    public Dictionary<int, Arg> Dic4 { get; set; }
+}
+[Serializable]
+public class Arg
+{
+    public Arg(int myProperty)
+    {
+        this.MyProperty = myProperty;
+    }
+
+    public Arg()
+    {
+        Person person = new Person();
+        person.Name = "张三";
+        person.Age = 18;
+    }
+
+    public int MyProperty { get; set; }
+}
+[Serializable]
+public class Person
+{
+    public string Name { get; set; }
+    public int Age { get; set; }
+}
+
+```
+
+**测试代码**
+
+``` CSharp
+ Student student = new Student();
+student.P1 = 10;
+student.P2 = "若汝棋茗";
+student.P3 = 100;
+student.P4 = 0;
+student.P5 = DateTime.Now;
+student.P6 = 10;
+student.P7 = new byte[1024 * 64];
+
+Random random = new Random();
+random.NextBytes(student.P7);
+
+student.List1 = new List<int>();
+student.List1.Add(1);
+student.List1.Add(2);
+student.List1.Add(3);
+
+student.List2 = new List<string>();
+student.List2.Add("1");
+student.List2.Add("2");
+student.List2.Add("3");
+
+student.List3 = new List<byte[]>();
+student.List3.Add(new byte[1024]);
+student.List3.Add(new byte[1024]);
+student.List3.Add(new byte[1024]);
+
+student.Dic1 = new Dictionary<int, int>();
+student.Dic1.Add(1, 1);
+student.Dic1.Add(2, 2);
+student.Dic1.Add(3, 3);
+
+student.Dic2 = new Dictionary<int, string>();
+student.Dic2.Add(1, "1");
+student.Dic2.Add(2, "2");
+student.Dic2.Add(3, "3");
+
+student.Dic3 = new Dictionary<string, string>();
+student.Dic3.Add("1", "1");
+student.Dic3.Add("2", "2");
+student.Dic3.Add("3", "3");
+
+student.Dic4 = new Dictionary<int, Arg>();
+student.Dic4.Add(1, new Arg(1));
+student.Dic4.Add(2, new Arg(2));
+student.Dic4.Add(3, new Arg(3));
+
+BytePool bytePool = new BytePool(1024 * 1024 * 10, 102400);
+
+TimeSpan timeSpan1 = TimeMeasurer.Run(() =>
+{
+    for (int i = 0; i < 100000; i++)
+    {
+        ByteBlock byteBlock = bytePool.GetByteBlock(1024 * 100);
+        SerializeConvert.RRQMBinarySerialize(byteBlock, student,true);
+        Student student1 = SerializeConvert.RRQMBinaryDeserialize<Student>(byteBlock.Buffer,
+        byteBlock.Dispose();
+        if (i % 1000 == 0)
+        {
+            Console.WriteLine(i);
+        }
+    }
+});
+
+TimeSpan timeSpan2 = TimeMeasurer.Run(() =>
+{
+    for (int i = 0; i < 100000; i++)
+    {
+        ByteBlock byteBlock = bytePool.GetByteBlock(1024 * 100);
+        SerializeConvert.BinarySerialize(byteBlock, student);
+        byteBlock.Position = 0;
+        Student student1 = SerializeConvert.BinaryDeserialize<Student>(byteBlock);
+        byteBlock.Dispose();
+        if (i % 1000 == 0)
+        {
+            Console.WriteLine(i);
+        }
+    }
+});
+
+Console.WriteLine($"RRQM:{timeSpan1}");
+Console.WriteLine($"System:{timeSpan2}");
+
+```
+
+**测试结果**
+
+![](https://i.loli.net/2021/05/12/1rTf6QOo2sC8KmM.jpg)
+
 
 ## 致谢
 

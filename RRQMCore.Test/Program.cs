@@ -1,9 +1,12 @@
 ﻿using RRQMCore.ByteManager;
 using RRQMCore.Data.Security;
 using RRQMCore.Data.XML;
+using RRQMCore.Diagnostics;
 using RRQMCore.Helper;
+using RRQMCore.IO;
 using RRQMCore.Pool;
 using RRQMCore.Run;
+using RRQMCore.Serialization;
 using System;
 using System.Collections.Generic;
 
@@ -14,10 +17,141 @@ namespace RRQMCore.Test
         static void Main(string[] args)
         {
             Console.ReadKey();
-            TestBytePool();
+            TestSerializePerformance();
             Console.ReadKey();
         }
 
+        private static void TestSerializePerformance()
+        {
+            Student student = new Student();
+            student.P1 = 10;
+            student.P2 = "若汝棋茗";
+            student.P3 = 100;
+            student.P4 = 0;
+            student.P5 = DateTime.Now;
+            student.P6 = 10;
+            student.P7 = new byte[1024 * 64];
+
+            Random random = new Random();
+            random.NextBytes(student.P7);
+
+            student.List1 = new List<int>();
+            student.List1.Add(1);
+            student.List1.Add(2);
+            student.List1.Add(3);
+
+            student.List2 = new List<string>();
+            student.List2.Add("1");
+            student.List2.Add("2");
+            student.List2.Add("3");
+
+            student.List3 = new List<byte[]>();
+            student.List3.Add(new byte[1024]);
+            student.List3.Add(new byte[1024]);
+            student.List3.Add(new byte[1024]);
+
+            student.Dic1 = new Dictionary<int, int>();
+            student.Dic1.Add(1, 1);
+            student.Dic1.Add(2, 2);
+            student.Dic1.Add(3, 3);
+
+            student.Dic2 = new Dictionary<int, string>();
+            student.Dic2.Add(1, "1");
+            student.Dic2.Add(2, "2");
+            student.Dic2.Add(3, "3");
+
+            student.Dic3 = new Dictionary<string, string>();
+            student.Dic3.Add("1", "1");
+            student.Dic3.Add("2", "2");
+            student.Dic3.Add("3", "3");
+
+            student.Dic4 = new Dictionary<int, Arg>();
+            student.Dic4.Add(1, new Arg(1));
+            student.Dic4.Add(2, new Arg(2));
+            student.Dic4.Add(3, new Arg(3));
+
+            BytePool bytePool = new BytePool(1024 * 1024 * 10, 102400);
+
+            TimeSpan timeSpan1 = TimeMeasurer.Run(() =>
+            {
+                for (int i = 0; i < 100000; i++)
+                {
+                    ByteBlock byteBlock = bytePool.GetByteBlock(1024 * 100);
+                    SerializeConvert.RRQMBinarySerialize(byteBlock, student,true);
+                    Student student1 = SerializeConvert.RRQMBinaryDeserialize<Student>(byteBlock.Buffer, 0);
+                    byteBlock.Dispose();
+                    if (i % 1000 == 0)
+                    {
+                        Console.WriteLine(i);
+                    }
+                }
+            });
+
+            TimeSpan timeSpan2 = TimeMeasurer.Run(() =>
+            {
+                for (int i = 0; i < 100000; i++)
+                {
+                    ByteBlock byteBlock = bytePool.GetByteBlock(1024 * 100);
+                    SerializeConvert.BinarySerialize(byteBlock, student);
+                    byteBlock.Position = 0;
+                    Student student1 = SerializeConvert.BinaryDeserialize<Student>(byteBlock);
+                    byteBlock.Dispose();
+                    if (i % 1000 == 0)
+                    {
+                        Console.WriteLine(i);
+                    }
+                }
+            });
+
+            Console.WriteLine($"RRQM:{timeSpan1}");
+            Console.WriteLine($"System:{timeSpan2}");
+        }
+        private void TestSerialize()
+        {
+            string obj = "RRQM";
+
+            //用系统二进制序列化、反序列化
+            byte[] data1 = SerializeConvert.BinarySerialize(obj);
+            string newObj = SerializeConvert.BinaryDeserialize<string>(data1);
+
+            //用系统二进制序列化至文件、反序列化
+            SerializeConvert.BinarySerializeToFile(obj, "C:/1.txt");
+            string newFileObj = SerializeConvert.BinaryDeserializeFromFile<string>("C:/1.txt");
+
+            //用RRQM二进制序列化、反序列化
+            byte[] data2 = SerializeConvert.RRQMBinarySerialize(obj, true);
+            string newRRQMObj = SerializeConvert.RRQMBinaryDeserialize<string>(data2, 0);
+
+            //用Xml序列化、反序列化
+            byte[] data3 = SerializeConvert.XmlSerializeToBytes(obj);
+            string newXmlObj = SerializeConvert.XmlDeserializeFromBytes<string>(data3);
+        }
+        private void TestFileControler()
+        {
+            //判断该文件时候已在打开状态
+            FileControler.FileIsOpen("C:/1.txt");
+
+            //获取文件SHA256值，转为大写16进制
+            FileControler.GetFileHash("C:/1.txt");
+        }
+        private void TestTimeRun()
+        {
+            Action action = new Action(() => { Console.WriteLine("Hello"); });
+            TimeRun.Run(action, 2);//延迟两秒执行
+            TimeRun.Run(action, TimeSpan.FromSeconds(2));//延迟两秒执行
+        }
+        private void TestTimeMeasurer()
+        {
+            TimeSpan timeSpan = TimeMeasurer.Run(() =>
+              {
+                  for (int i = 0; i < 1000; i++)
+                  {
+                      Console.WriteLine(i);
+                  }
+              });
+
+            Console.WriteLine(timeSpan);
+        }
         private void TestXml()
         {
             XmlTool xmlTool = new XmlTool("Test.xml");
@@ -173,5 +307,49 @@ namespace RRQMCore.Test
         {
 
         }
+    }
+
+    [Serializable]
+    public class Student
+    {
+        public int P1 { get; set; }
+        public string P2 { get; set; }
+        public long P3 { get; set; }
+        public byte P4 { get; set; }
+        public DateTime P5 { get; set; }
+        public double P6 { get; set; }
+        public byte[] P7 { get; set; }
+
+        public List<int> List1 { get; set; }
+        public List<string> List2 { get; set; }
+        public List<byte[]> List3 { get; set; }
+
+        public Dictionary<int, int> Dic1 { get; set; }
+        public Dictionary<int, string> Dic2 { get; set; }
+        public Dictionary<string, string> Dic3 { get; set; }
+        public Dictionary<int, Arg> Dic4 { get; set; }
+    }
+    [Serializable]
+    public class Arg
+    {
+        public Arg(int myProperty)
+        {
+            this.MyProperty = myProperty;
+        }
+
+        public Arg()
+        {
+            Person person = new Person();
+            person.Name = "张三";
+            person.Age = 18;
+        }
+
+        public int MyProperty { get; set; }
+    }
+    [Serializable]
+    public class Person
+    {
+        public string Name { get; set; }
+        public int Age { get; set; }
     }
 }
