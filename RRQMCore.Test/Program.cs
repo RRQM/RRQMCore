@@ -1,4 +1,15 @@
-﻿using RRQMCore.ByteManager;
+//------------------------------------------------------------------------------
+//  此代码版权归作者本人若汝棋茗所有
+//  源代码使用协议遵循本仓库的开源协议及附加协议，若本仓库没有设置，则按MIT开源协议授权
+//  CSDN博客：https://blog.csdn.net/qq_40374647
+//  哔哩哔哩视频：https://space.bilibili.com/94253567
+//  Gitee源代码仓库：https://gitee.com/RRQM_Home
+//  Github源代码仓库：https://github.com/RRQM
+//  交流QQ群：234762506
+//  感谢您的下载和使用
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+using RRQMCore.ByteManager;
 using RRQMCore.Data.Security;
 using RRQMCore.Data.XML;
 using RRQMCore.Diagnostics;
@@ -9,6 +20,8 @@ using RRQMCore.Run;
 using RRQMCore.Serialization;
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace RRQMCore.Test
 {
@@ -17,7 +30,59 @@ namespace RRQMCore.Test
         static void Main(string[] args)
         {
             Console.ReadKey();
-            TestSerializePerformance();
+
+            BytePool bytePool = new BytePool(1024*1024,1024*1024);
+
+            List<ByteBlock> byteBlocks = new List<ByteBlock>();
+
+            for (int n = 0; n < 10; n++)
+            {
+                Task.Run(() =>
+                {
+                    for (int j = 0; j < 1000; j++)
+                    {
+                        for (int i = 0; i < 100; i++)
+                        {
+                            ByteBlock byteBlock = bytePool.GetByteBlock(1024 * 64);
+                            lock (typeof(Program))
+                            {
+                                byteBlocks.Add(byteBlock);
+                            }
+
+                        }
+
+                        Thread.Sleep(10);
+                    }
+
+                });
+            }
+            
+
+            Task.Run(() =>
+            {
+                while (true)
+                {
+                    int len = byteBlocks.Count;
+                    for (int i = 0; i < len; i++)
+                    {
+                        if (!byteBlocks[i].Using)
+                        {
+
+                        }
+                        else
+                        {
+                            byteBlocks[i].Dispose();
+                        }
+                    }
+                    lock (typeof(Program))
+                    {
+                        byteBlocks.RemoveRange(0, len);
+                        Console.WriteLine(len);
+                    }
+                    Thread.Sleep(10);
+                }
+            });
+
             Console.ReadKey();
         }
 
@@ -77,7 +142,7 @@ namespace RRQMCore.Test
                 for (int i = 0; i < 100000; i++)
                 {
                     ByteBlock byteBlock = bytePool.GetByteBlock(1024 * 100);
-                    SerializeConvert.RRQMBinarySerialize(byteBlock, student,true);
+                    SerializeConvert.RRQMBinarySerialize(byteBlock, student, true);
                     Student student1 = SerializeConvert.RRQMBinaryDeserialize<Student>(byteBlock.Buffer, 0);
                     byteBlock.Dispose();
                     if (i % 1000 == 0)
@@ -244,14 +309,11 @@ namespace RRQMCore.Test
         {
             BytePool bytePool = new BytePool(1024 * 1024 * 100, 1024 * 1024);
 
-            //获取任意长度的空闲ByteBlock，如果没有空闲，则创建一个最大单元
-            ByteBlock byteBlock1 = bytePool.GetByteBlock();
-
             //获取不小于64kb长度ByteBlock
-            ByteBlock byteBlock2 = bytePool.GetByteBlock(1024 * 64);
+            ByteBlock byteBlock1 = bytePool.GetByteBlock(1024 * 64);
 
             //获取64kb长度ByteBlock，且必须为64kb
-            ByteBlock byteBlock3 = bytePool.GetByteBlock(1024 * 64, true);
+            ByteBlock byteBlock2 = bytePool.GetByteBlock(1024 * 64, true);
 
             byteBlock1.Write(10);//写入byte
             byte[] buffer = new byte[1024];
@@ -259,8 +321,7 @@ namespace RRQMCore.Test
             byteBlock1.Write(new byte[1024]);//写入byte[]
 
             byteBlock1.Dispose();
-            byteBlock2.Dispose();
-            byteBlock3.Dispose();//回收至内存池
+            byteBlock2.Dispose();//回收至内存池
 
             byteBlock1.SetHolding(true);
         }

@@ -3,7 +3,8 @@
 //  源代码使用协议遵循本仓库的开源协议及附加协议，若本仓库没有设置，则按MIT开源协议授权
 //  CSDN博客：https://blog.csdn.net/qq_40374647
 //  哔哩哔哩视频：https://space.bilibili.com/94253567
-//  源代码仓库：https://gitee.com/RRQM_Home
+//  Gitee源代码仓库：https://gitee.com/RRQM_Home
+//  Github源代码仓库：https://github.com/RRQM
 //  交流QQ群：234762506
 //  感谢您的下载和使用
 //------------------------------------------------------------------------------
@@ -16,7 +17,7 @@ namespace RRQMCore.ByteManager
     /// <summary>
     /// 字节块流
     /// </summary>
-    public class ByteBlock : Stream, IDisposable
+    public sealed class ByteBlock : Stream, IDisposable
     {
         internal ByteBlock()
         {
@@ -35,7 +36,7 @@ namespace RRQMCore.ByteManager
         /// <summary>
         /// 表示持续性持有，为True时，Dispose将调用无效。
         /// </summary>
-        public bool Holding { get;private set; }
+        public bool Holding { get; private set; }
 
 
         /// <summary>
@@ -143,7 +144,7 @@ namespace RRQMCore.ByteManager
             }
             if (this.Buffer.Length - this.Position < count)
             {
-                byte[] newBuffer = new byte[this.Buffer.Length+count];
+                byte[] newBuffer = new byte[this.Buffer.Length + count];
                 Array.Copy(this.Buffer, newBuffer, this.Buffer.Length);
                 this.Buffer = newBuffer;
                 this.lengthChenged = true;
@@ -277,6 +278,18 @@ namespace RRQMCore.ByteManager
             {
                 this.BytesCollection.BytePool.OnByteBlockRecycle(this);
             }
+        }
+
+        /// <summary>
+        /// 直接完全释放，游离该对象，等待GC
+        /// </summary>
+        public void AbsoluteDispose()
+        {
+            this.Using = false;
+            this.Buffer = null;
+            this.Position = 0;
+            this.length = 0;
+            this.BytesCollection = null;
         }
 
     }

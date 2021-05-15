@@ -3,11 +3,14 @@
 //  源代码使用协议遵循本仓库的开源协议及附加协议，若本仓库没有设置，则按MIT开源协议授权
 //  CSDN博客：https://blog.csdn.net/qq_40374647
 //  哔哩哔哩视频：https://space.bilibili.com/94253567
-//  源代码仓库：https://gitee.com/RRQM_Home
+//  Gitee源代码仓库：https://gitee.com/RRQM_Home
+//  Github源代码仓库：https://github.com/RRQM
 //  交流QQ群：234762506
 //  感谢您的下载和使用
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
+using RRQMCore.Exceptions;
+using System;
 using System.Threading;
 
 namespace RRQMCore.ByteManager
@@ -50,14 +53,15 @@ namespace RRQMCore.ByteManager
         public int BlockCount { get; private set; }
 
         /// <summary>
-        /// 允许的内存池最大值,默认为10M Byte
+        /// 允许的内存池最大值,默认为100M Byte
         /// </summary>
-        public long MaxSize { get; set; } = 1024 * 1024 * 10;
+        public long MaxSize { get; set; } = 1024 * 1024 * 100;
 
         /// <summary>
-        /// 单个块最大值，默认为1K Byte
+        /// 单个块最大值，默认为1Mb
         /// </summary>
-        public int MaxBlockSize { get; set; }
+        public int MaxBlockSize { get; set; } = 1024 * 1024;
+
 
         /// <summary>
         /// 当前内存池实际长度
@@ -70,6 +74,8 @@ namespace RRQMCore.ByteManager
         public long CreatedBlockSize { get; private set; }
 
         private BytesDictionary bytesDictionary = new BytesDictionary();
+
+
         /// <summary>
         /// 获取ByteBlock
         /// </summary>
@@ -94,11 +100,11 @@ namespace RRQMCore.ByteManager
                 }
                 else
                 {
+                    BytesCollection bytesCollection;
                     //搜索已创建集合
-                    if (bytesDictionary.ContainsKey(byteSize))
+                    if (bytesDictionary.TryGet(byteSize, out bytesCollection))
                     {
-                        byteBlock = bytesDictionary[byteSize].Get();
-                        if (byteBlock != null)
+                        if (bytesCollection.TryGet(out byteBlock))
                         {
                             byteBlock.Using = true;
                             byteBlock.Position = 0;
@@ -109,17 +115,20 @@ namespace RRQMCore.ByteManager
 
                     if (!equalSize)
                     {
-                        foreach (long size in bytesDictionary.Keys)
+                        int len = bytesDictionary.Keys.Count;
+                        for (int i = 0; i < len; i++)
                         {
-                            if (size > byteSize)
+                            if (bytesDictionary.Keys[i] > byteSize)
                             {
-                                byteBlock = bytesDictionary[size].Get();
-                                if (byteBlock != null)
+                                if (this.bytesDictionary.TryGet(bytesDictionary.Keys[i], out bytesCollection))
                                 {
-                                    byteBlock.Using = true;
-                                    byteBlock.Position = 0;
-                                    byteBlock.length = 0;
-                                    return byteBlock;
+                                    if (bytesCollection.TryGet(out byteBlock))
+                                    {
+                                        byteBlock.Using = true;
+                                        byteBlock.Position = 0;
+                                        byteBlock.length = 0;
+                                        return byteBlock;
+                                    }
                                 }
                             }
                         }
@@ -144,49 +153,63 @@ namespace RRQMCore.ByteManager
             return this.GetByteBlock(byteSize, false);
         }
 
-        /// <summary>
-        /// 获取任意长度的空闲ByteBlock，如果没有空闲，则创建一个最大单元
-        /// </summary>
-        /// <returns></returns>
-        public ByteBlock GetByteBlock()
-        {
-            ByteBlock byteBlock;
-            //搜索已创建集合
-            foreach (long size in bytesDictionary.Keys)
-            {
-                byteBlock = bytesDictionary[size].Get();
-                if (byteBlock != null)
-                {
-                    byteBlock.Using = true;
-                    byteBlock.Position = 0;
-                    byteBlock.length = 0;
-                    return byteBlock;
-                }
-            }
-            //未搜索到
-            byteBlock = CreatByteBlock(this.MaxBlockSize);
-            byteBlock.Using = true;
-            return byteBlock;
-        }
+        ///// <summary>
+        ///// 获取任意长度的空闲ByteBlock，如果没有空闲，则创建一个最大单元
+        ///// </summary>
+        ///// <returns></returns>
+        //public ByteBlock GetByteBlock()
+        //{
+        //    ByteBlock byteBlock;
+        //    //搜索已创建集合
+
+        //    int len = this.bytesDictionary.Keys.Count;
+        //    for (int i = 0; i < len; i++)
+        //    {
+        //        if (bytesDictionary.TryGet(this.bytesDictionary.Keys[i], out BytesCollection bytesCollection))
+        //        {
+        //            if (bytesCollection.TryGet(out byteBlock))
+        //            {
+        //                byteBlock.Using = true;
+        //                byteBlock.Position = 0;
+        //                byteBlock.length = 0;
+        //                return byteBlock;
+        //            }
+        //        }
+        //    }
+        //    //未搜索到
+        //    byteBlock = CreatByteBlock(this.MaxBlockSize);
+        //    byteBlock.Using = true;
+        //    return byteBlock;
+        //}
 
         private ByteBlock CreatByteBlock(long byteSize, bool isBelongPool = true)
         {
             if (byteSize < 0)
             {
-                throw new RRQMCore.Exceptions.RRQMException("申请内存的长度不能小于0");
+                throw new RRQMException("申请内存的长度不能小于0");
             }
             ByteBlock byteBlock = new ByteBlock();
             byteBlock.Buffer = new byte[byteSize];
             if (isBelongPool && MaxSize - ActualSize >= byteSize)
             {
-                //创建
+                ////创建
+                //lock (this)
+                //{
+                //   
+                //   
+                //   
+                //}
+                CreatedBlockSize = byteSize;
+                BytesCollection bytesCollection;
                 lock (this)
                 {
-                    ActualSize += byteSize;
-                    CreatedBlockSize = byteSize;
-                    BlockCount++;
+                    if (!this.bytesDictionary.TryGet(byteSize, out bytesCollection))
+                    {
+                        bytesCollection = new BytesCollection(byteSize);
+                        this.bytesDictionary.Add(byteSize, bytesCollection);
+                    }
                 }
-                BytesCollection bytesCollection = bytesDictionary.GetOrAdd(byteSize, (v) => { return new BytesCollection(byteSize); });
+
                 bytesCollection.BytePool = this;
                 byteBlock.BytesCollection = bytesCollection;
                 return byteBlock;
@@ -200,15 +223,28 @@ namespace RRQMCore.ByteManager
 
         internal void OnByteBlockRecycle(ByteBlock byteBlock)
         {
-            if (byteBlock.lengthChenged)
-            {
-                this.ActualSize -= byteBlock.BytesCollection.size;
-                this.ActualSize += byteBlock.Length;
-            }
+            //if (byteBlock.lengthChenged)
+            //{
+            //    this.ActualSize -= byteBlock.BytesCollection.size;
+            //    this.ActualSize += byteBlock.Buffer.Length;
+            //}
+            
+
+            BytesCollection bytesCollection;
             byteBlock.Using = false;
-            BytesCollection bytesCollection = bytesDictionary.GetOrAdd(byteBlock.Capacity, (v) => { return new BytesCollection(byteBlock.Length); });
-            bytesCollection.BytePool = this;
-            bytesCollection.Add(byteBlock);
+            ActualSize += byteBlock.Capacity;
+            CreatedBlockSize = Math.Max(CreatedBlockSize, byteBlock.Capacity);
+            BlockCount++;
+            if (this.bytesDictionary.TryGet(byteBlock.Capacity, out bytesCollection))
+            {
+                bytesCollection.BytePool = this;
+                bytesCollection.Add(byteBlock);
+            }
+            else
+            {
+                byteBlock.AbsoluteDispose();
+            }
+           
         }
     }
 }
