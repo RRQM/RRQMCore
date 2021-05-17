@@ -29,9 +29,27 @@ namespace RRQMCore.Test
     {
         static void Main(string[] args)
         {
+            ThreadPool.SetMinThreads(100, 100);
             Console.ReadKey();
 
-            BytePool bytePool = new BytePool(1024*1024,1024*1024);
+            BytePool bytePool = new BytePool(1024 * 1024 * 1024, 1024 * 1024);
+
+            for (int j = 0; j < 100; j++)
+            {
+                Task.Run(() =>
+                {
+                    TimeSpan timeSpan = TimeMeasurer.Run(() =>
+                    {
+                        for (int i = 0; i < 1000000; i++)
+                        {
+                            ByteBlock byteBlock = bytePool.GetByteBlock(1024 * 64);
+                            byteBlock.Dispose();
+                        }
+                    });
+                    Console.WriteLine(timeSpan);
+                });
+            }
+            Console.ReadKey();
 
             List<ByteBlock> byteBlocks = new List<ByteBlock>();
 
@@ -56,7 +74,7 @@ namespace RRQMCore.Test
 
                 });
             }
-            
+
 
             Task.Run(() =>
             {

@@ -48,11 +48,6 @@ namespace RRQMCore.ByteManager
         }
 
         /// <summary>
-        /// 块数量
-        /// </summary>
-        public int BlockCount { get; private set; }
-
-        /// <summary>
         /// 允许的内存池最大值,默认为100M Byte
         /// </summary>
         public long MaxSize { get; set; } = 1024 * 1024 * 100;
@@ -63,10 +58,7 @@ namespace RRQMCore.ByteManager
         public int MaxBlockSize { get; set; } = 1024 * 1024;
 
 
-        /// <summary>
-        /// 当前内存池实际长度
-        /// </summary>
-        public long ActualSize { get; private set; }
+        private long freeSize;
 
         /// <summary>
         /// 已创建的块的最大值
@@ -109,6 +101,7 @@ namespace RRQMCore.ByteManager
                             byteBlock.Using = true;
                             byteBlock.Position = 0;
                             byteBlock.length = 0;
+                            freeSize -= byteBlock.Capacity;
                             return byteBlock;
                         }
                     }
@@ -127,6 +120,7 @@ namespace RRQMCore.ByteManager
                                         byteBlock.Using = true;
                                         byteBlock.Position = 0;
                                         byteBlock.length = 0;
+                                        freeSize -= byteBlock.Capacity;
                                         return byteBlock;
                                     }
                                 }
@@ -190,16 +184,8 @@ namespace RRQMCore.ByteManager
             }
             ByteBlock byteBlock = new ByteBlock();
             byteBlock.Buffer = new byte[byteSize];
-            if (isBelongPool && MaxSize - ActualSize >= byteSize)
+            if (isBelongPool)
             {
-                ////创建
-                //lock (this)
-                //{
-                //   
-                //   
-                //   
-                //}
-                CreatedBlockSize = byteSize;
                 BytesCollection bytesCollection;
                 lock (this)
                 {
@@ -223,28 +209,33 @@ namespace RRQMCore.ByteManager
 
         internal void OnByteBlockRecycle(ByteBlock byteBlock)
         {
-            //if (byteBlock.lengthChenged)
-            //{
-            //    this.ActualSize -= byteBlock.BytesCollection.size;
-            //    this.ActualSize += byteBlock.Buffer.Length;
-            //}
-            
-
             BytesCollection bytesCollection;
             byteBlock.Using = false;
-            ActualSize += byteBlock.Capacity;
+            freeSize += byteBlock.Capacity;
             CreatedBlockSize = Math.Max(CreatedBlockSize, byteBlock.Capacity);
-            BlockCount++;
-            if (this.bytesDictionary.TryGet(byteBlock.Capacity, out bytesCollection))
+            if (MaxSize - freeSize >= byteBlock.Capacity)
             {
-                bytesCollection.BytePool = this;
-                bytesCollection.Add(byteBlock);
+
+                if (this.bytesDictionary.TryGet(byteBlock.Capacity, out bytesCollection))
+                {
+                    bytesCollection.BytePool = this;
+                    bytesCollection.Add(byteBlock);
+                }
+                else
+                {
+                    lock (this)
+                    {
+                        bytesCollection = new BytesCollection(byteBlock.Capacity);
+                        this.bytesDictionary.Add(byteBlock.Capacity, bytesCollection);
+                    }
+                }
             }
             else
             {
                 byteBlock.AbsoluteDispose();
             }
-           
+
+
         }
     }
 }
