@@ -147,34 +147,14 @@ namespace RRQMCore.ByteManager
             return this.GetByteBlock(byteSize, false);
         }
 
-        ///// <summary>
-        ///// 获取任意长度的空闲ByteBlock，如果没有空闲，则创建一个最大单元
-        ///// </summary>
-        ///// <returns></returns>
-        //public ByteBlock GetByteBlock()
-        //{
-        //    ByteBlock byteBlock;
-        //    //搜索已创建集合
-
-        //    int len = this.bytesDictionary.Keys.Count;
-        //    for (int i = 0; i < len; i++)
-        //    {
-        //        if (bytesDictionary.TryGet(this.bytesDictionary.Keys[i], out BytesCollection bytesCollection))
-        //        {
-        //            if (bytesCollection.TryGet(out byteBlock))
-        //            {
-        //                byteBlock.Using = true;
-        //                byteBlock.Position = 0;
-        //                byteBlock.length = 0;
-        //                return byteBlock;
-        //            }
-        //        }
-        //    }
-        //    //未搜索到
-        //    byteBlock = CreatByteBlock(this.MaxBlockSize);
-        //    byteBlock.Using = true;
-        //    return byteBlock;
-        //}
+        /// <summary>
+        /// 获取最大长度的ByteBlock
+        /// </summary>
+        /// <returns></returns>
+        public ByteBlock GetByteBlock()
+        {
+            return this.GetByteBlock(this.MaxBlockSize, true);
+        }
 
         private ByteBlock CreatByteBlock(long byteSize, bool isBelongPool = true)
         {
@@ -211,11 +191,10 @@ namespace RRQMCore.ByteManager
         {
             BytesCollection bytesCollection;
             byteBlock.Using = false;
-            freeSize += byteBlock.Capacity;
             CreatedBlockSize = Math.Max(CreatedBlockSize, byteBlock.Capacity);
             if (MaxSize - freeSize >= byteBlock.Capacity)
             {
-
+                freeSize += byteBlock.Capacity;
                 if (this.bytesDictionary.TryGet(byteBlock.Capacity, out bytesCollection))
                 {
                     bytesCollection.BytePool = this;
@@ -232,6 +211,17 @@ namespace RRQMCore.ByteManager
             }
             else
             {
+                int len = this.bytesDictionary.Keys.Count;
+                long size = 0;
+                for (int i = 0; i < len; i++)
+                {
+                    if (this.bytesDictionary.TryGet(this.bytesDictionary.Keys[i],out BytesCollection collection))
+                    {
+                        size += collection.FreeSize;
+                    }
+                }
+
+                this.freeSize = size;
                 byteBlock.AbsoluteDispose();
             }
 

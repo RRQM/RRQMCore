@@ -28,6 +28,11 @@ namespace RRQMCore.ByteManager
         }
 
         /// <summary>
+        /// 可用空间
+        /// </summary>
+        public long FreeSize { get { return this.size * this.bytes.Count; } }
+
+        /// <summary>
         /// 所属字节池
         /// </summary>
         public BytePool BytePool { get; internal set; }

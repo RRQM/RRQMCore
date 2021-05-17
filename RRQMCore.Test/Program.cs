@@ -29,18 +29,27 @@ namespace RRQMCore.Test
     {
         static void Main(string[] args)
         {
-            ThreadPool.SetMinThreads(100, 100);
             Console.ReadKey();
+            TestBytePoolPerformance_two();
+            Console.ReadKey();
+        }
 
+        
+        /// <summary>
+        /// 测试内存池并发性能
+        /// </summary>
+        private static void TestBytePoolPerformance_one()
+        {
+            ThreadPool.SetMinThreads(100, 100);
             BytePool bytePool = new BytePool(1024 * 1024 * 1024, 1024 * 1024);
 
-            for (int j = 0; j < 100; j++)
+            for (int j = 0; j < 100; j++)//100并发
             {
                 Task.Run(() =>
                 {
                     TimeSpan timeSpan = TimeMeasurer.Run(() =>
                     {
-                        for (int i = 0; i < 1000000; i++)
+                        for (int i = 0; i < 1000000; i++)//每次申请，销毁100w次
                         {
                             ByteBlock byteBlock = bytePool.GetByteBlock(1024 * 64);
                             byteBlock.Dispose();
@@ -49,17 +58,50 @@ namespace RRQMCore.Test
                     Console.WriteLine(timeSpan);
                 });
             }
-            Console.ReadKey();
+        }
 
+        /// <summary>
+        /// 测试延迟销毁
+        /// </summary>
+        private static void TestBytePoolPerformance_two()
+        {
+            ThreadPool.SetMinThreads(100, 100);
+            BytePool bytePool = new BytePool(1024 * 1024*1024 , 1024*1024);
             List<ByteBlock> byteBlocks = new List<ByteBlock>();
 
-            for (int n = 0; n < 10; n++)
+
+            Task.Run(() =>
+            {
+                while (true)
+                {
+                    int len = byteBlocks.Count;
+                    for (int i = 0; i < len; i++)
+                    {
+                        if (!byteBlocks[i].Using)
+                        {
+                            Console.WriteLine("发生异常");
+                        }
+                        else
+                        {
+                            byteBlocks[i].Dispose();
+                        }
+                    }
+                    lock (typeof(Program))
+                    {
+                        byteBlocks.RemoveRange(0, len);
+                        Console.WriteLine(len);
+                    }
+                    Thread.Sleep(10);
+                }
+            });
+
+            for (int n = 0; n < 100; n++)
             {
                 Task.Run(() =>
                 {
                     for (int j = 0; j < 1000; j++)
                     {
-                        for (int i = 0; i < 100; i++)
+                        for (int i = 0; i < 10; i++)
                         {
                             ByteBlock byteBlock = bytePool.GetByteBlock(1024 * 64);
                             lock (typeof(Program))
@@ -76,32 +118,6 @@ namespace RRQMCore.Test
             }
 
 
-            Task.Run(() =>
-            {
-                while (true)
-                {
-                    int len = byteBlocks.Count;
-                    for (int i = 0; i < len; i++)
-                    {
-                        if (!byteBlocks[i].Using)
-                        {
-
-                        }
-                        else
-                        {
-                            byteBlocks[i].Dispose();
-                        }
-                    }
-                    lock (typeof(Program))
-                    {
-                        byteBlocks.RemoveRange(0, len);
-                        Console.WriteLine(len);
-                    }
-                    Thread.Sleep(10);
-                }
-            });
-
-            Console.ReadKey();
         }
 
         private static void TestSerializePerformance()
