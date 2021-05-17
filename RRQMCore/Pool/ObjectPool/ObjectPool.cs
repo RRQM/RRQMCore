@@ -71,14 +71,14 @@ namespace RRQMCore.Pool
             if (this.queue.TryDequeue(out t))
             {
                 t.Recreate();
-                t.NewCreat = false;
+                t.NewCreate = false;
                 Interlocked.Decrement(ref this.freeSize);
                 return t;
             }
 
             t = (T)Activator.CreateInstance(typeof(T));
             t.Create();
-            t.NewCreat = true;
+            t.NewCreate = true;
             return t;
         }
         

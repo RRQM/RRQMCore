@@ -20,7 +20,7 @@ namespace RRQMCore.Pool
         /// <summary>
         /// 是否为新建对象
         /// </summary>
-        bool NewCreat { get; set; }
+        bool NewCreate { get; set; }
 
         /// <summary>
         /// 初创建对象

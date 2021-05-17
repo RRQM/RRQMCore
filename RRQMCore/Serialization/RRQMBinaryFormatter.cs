@@ -13,6 +13,7 @@ using RRQMCore.ByteManager;
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -435,7 +436,7 @@ namespace RRQMCore.Serialization
         {
             if (type.IsArray && !type.IsGenericType)
             {
-                type = Type.GetType($"System.Collections.Generic.List`1[[{type.FullName.Replace("[]", string.Empty)}]]");
+                type= typeof(List<>).MakeGenericType(type.GetElementType());
                 InstanceObject typeInfo = InstanceCache.GetOrAdd(type.FullName, (v) =>
                 {
                     InstanceObject instanceObject = new InstanceObject();

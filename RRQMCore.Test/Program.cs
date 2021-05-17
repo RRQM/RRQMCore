@@ -30,11 +30,11 @@ namespace RRQMCore.Test
         static void Main(string[] args)
         {
             Console.ReadKey();
-            TestBytePoolPerformance_two();
+            TestSerializePerformance();
             Console.ReadKey();
         }
 
-        
+
         /// <summary>
         /// 测试内存池并发性能
         /// </summary>
@@ -66,7 +66,7 @@ namespace RRQMCore.Test
         private static void TestBytePoolPerformance_two()
         {
             ThreadPool.SetMinThreads(100, 100);
-            BytePool bytePool = new BytePool(1024 * 1024*1024 , 1024*1024);
+            BytePool bytePool = new BytePool(1024 * 1024 * 1024, 1024 * 1024);
             List<ByteBlock> byteBlocks = new List<ByteBlock>();
 
 
@@ -386,7 +386,7 @@ namespace RRQMCore.Test
 
     class MyObject : IPoolObject
     {
-        public bool NewCreat { get; set; }
+        public bool NewCreate { get; set; }
 
         public void Create()
         {
