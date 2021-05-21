@@ -30,7 +30,7 @@ namespace RRQMCore.Test
         static void Main(string[] args)
         {
             Console.ReadKey();
-            TestSerializePerformance();
+            TestBytePoolPerformance_one();
             Console.ReadKey();
         }
 
@@ -49,7 +49,7 @@ namespace RRQMCore.Test
                 {
                     TimeSpan timeSpan = TimeMeasurer.Run(() =>
                     {
-                        for (int i = 0; i < 1000000; i++)//每次申请，销毁100w次
+                        for (int i = 0; i < 100000; i++)//每次申请，销毁10w次
                         {
                             ByteBlock byteBlock = bytePool.GetByteBlock(1024 * 64);
                             byteBlock.Dispose();
@@ -66,7 +66,7 @@ namespace RRQMCore.Test
         private static void TestBytePoolPerformance_two()
         {
             ThreadPool.SetMinThreads(100, 100);
-            BytePool bytePool = new BytePool(1024 * 1024 * 1024, 1024 * 1024);
+            BytePool bytePool = new BytePool(1024 * 1024 * 1000, 1024 * 1024);
             List<ByteBlock> byteBlocks = new List<ByteBlock>();
 
 
