@@ -11,6 +11,7 @@
 //------------------------------------------------------------------------------
 using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace RRQMCore.Helper
 {
@@ -36,6 +37,17 @@ namespace RRQMCore.Helper
             }
 
             return s.ToArray();
+        }
+
+        /// <summary>
+        /// 按字符串分割
+        /// </summary>
+        /// <param name="str"></param>
+        /// <param name="pattern"></param>
+        /// <returns></returns>
+        public static string[] Split(this string str, string pattern)
+        {
+           return Regex.Split(str, pattern);
         }
 
         /// <summary>

@@ -11,9 +11,8 @@
 更新时间：2021.05.17
 
 更新内容：
-1.优化：内存池。
-2.修复：序列化Bug。
-3.修改：单词拼写错误。</Description>
+增加：string分割扩展
+</Description>
 		<PackageProjectUrl>https://gitee.com/RRQM_OS/RRQMCore</PackageProjectUrl>
 		<AssemblyOriginatorKeyFile>RRQM.pfx</AssemblyOriginatorKeyFile>
 		<ApplicationIcon>RRQM.ico</ApplicationIcon>
