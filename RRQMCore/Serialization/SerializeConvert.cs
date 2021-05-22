@@ -14,6 +14,7 @@ using System;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Xml.Serialization;
 
@@ -174,7 +175,7 @@ namespace RRQMCore.Serialization
         /// <returns></returns>
         public static byte[] RRQMBinarySerialize(object obj, bool reserveAttributeName)
         {
-            using (ByteBlock byteBlock = new ByteBlock() { Using=true})
+            using (ByteBlock byteBlock = new ByteBlock() { Using = true })
             {
                 byteBlock.SetBuffer(new byte[1024 * 10]);
                 RRQMBinarySerialize(byteBlock, obj, reserveAttributeName);
