@@ -51,7 +51,7 @@ namespace RRQMCore.Test
                     {
                         for (int i = 0; i < 100000; i++)//每次申请，销毁10w次
                         {
-                            ByteBlock byteBlock = bytePool.GetByteBlock(1024 * 64);
+                            ByteBlock byteBlock = bytePool.GetByteBlock(1024);
                             byteBlock.Dispose();
                         }
                     });
