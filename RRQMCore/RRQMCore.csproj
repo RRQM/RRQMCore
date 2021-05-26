@@ -5,19 +5,20 @@
 		<Authors>若汝棋茗</Authors>
 		<PackageIcon>RRQM.png</PackageIcon>
     <Copyright>Copyright © 2021 若汝棋茗</Copyright>
-    <Version>1.2.22</Version>
+    <Version>1.2.23</Version>
     <SignAssembly>true</SignAssembly>
 		<Description>此程序集是RRQM的核心开源库，其中包含了内存池、高性能序列化、日志接口在内的很多基本内容。
 更新时间：2021.05.17
 
 更新内容：
-增加：string分割扩展
+增加：内存池重复释放警告。
 </Description>
 		<PackageProjectUrl>https://gitee.com/RRQM_OS/RRQMCore</PackageProjectUrl>
 		<AssemblyOriginatorKeyFile>RRQM.pfx</AssemblyOriginatorKeyFile>
 		<ApplicationIcon>RRQM.ico</ApplicationIcon>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+		<PackageTags>MemoryPool,ObjectPool,Serialize,Tool</PackageTags>
 	</PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">

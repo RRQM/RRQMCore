@@ -11,6 +11,9 @@
 //------------------------------------------------------------------------------
 using RRQMCore.Exceptions;
 using System;
+using System.Collections;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace RRQMCore.ByteManager
@@ -18,12 +21,12 @@ namespace RRQMCore.ByteManager
     /// <summary>
     /// 字节池
     /// </summary>
-    public class BytePool
+    public class BytePool : IEnumerable<ByteBlock>
     {
         /// <summary>
         /// 构造函数
         /// </summary>
-        public BytePool()
+        public BytePool() : this(1024 * 1024 * 100, 1024 * 1024)
         {
         }
 
@@ -42,7 +45,7 @@ namespace RRQMCore.ByteManager
         /// 构造函数
         /// </summary>
         /// <param name="maxSize">字节池最大值</param>
-        public BytePool(long maxSize)
+        public BytePool(long maxSize) : this(maxSize, 1024 * 1024)
         {
             this.MaxSize = maxSize;
         }
@@ -50,13 +53,12 @@ namespace RRQMCore.ByteManager
         /// <summary>
         /// 允许的内存池最大值,默认为100M Byte
         /// </summary>
-        public long MaxSize { get; set; } = 1024 * 1024 * 100;
+        public long MaxSize { get; set; }
 
         /// <summary>
         /// 单个块最大值，默认为1Mb
         /// </summary>
-        public int MaxBlockSize { get; set; } = 1024 * 1024;
-
+        public int MaxBlockSize { get; set; }
 
         private long freeSize;
 
@@ -190,8 +192,7 @@ namespace RRQMCore.ByteManager
         internal void OnByteBlockRecycle(ByteBlock byteBlock)
         {
             BytesCollection bytesCollection;
-            byteBlock.Using = false;
-            CreatedBlockSize = Math.Max(CreatedBlockSize, byteBlock.Capacity);
+            this.CreatedBlockSize = Math.Max(CreatedBlockSize, byteBlock.Capacity);
             if (MaxSize - freeSize >= byteBlock.Capacity)
             {
                 freeSize += byteBlock.Capacity;
@@ -215,7 +216,7 @@ namespace RRQMCore.ByteManager
                 long size = 0;
                 for (int i = 0; i < len; i++)
                 {
-                    if (this.bytesDictionary.TryGet(this.bytesDictionary.Keys[i],out BytesCollection collection))
+                    if (this.bytesDictionary.TryGet(this.bytesDictionary.Keys[i], out BytesCollection collection))
                     {
                         size += collection.FreeSize;
                     }
@@ -224,8 +225,38 @@ namespace RRQMCore.ByteManager
                 this.freeSize = size;
                 byteBlock.AbsoluteDispose();
             }
+        }
 
+        /// <summary>
+        /// 返回迭代器
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerator<ByteBlock> GetEnumerator()
+        {
+            List<ByteBlock> blocks = new List<ByteBlock>();
+            foreach (var item in bytesDictionary.Keys)
+            {
+                if (bytesDictionary.TryGet(item, out BytesCollection bytesCollection))
+                {
+                    blocks.AddRange(bytesCollection.ToList());
+                }
+            }
 
+            return blocks.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            List<ByteBlock> blocks = new List<ByteBlock>();
+            foreach (var item in bytesDictionary.Keys)
+            {
+                if (bytesDictionary.TryGet(item, out BytesCollection bytesCollection))
+                {
+                    blocks.AddRange(bytesCollection.ToList());
+                }
+            }
+
+            return blocks.GetEnumerator();
         }
     }
 }

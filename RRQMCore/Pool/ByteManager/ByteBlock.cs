@@ -274,6 +274,10 @@ namespace RRQMCore.ByteManager
             {
                 return;
             }
+            if (!this.Using)
+            {
+                throw new RRQMCore.Exceptions.RRQMException("重复释放");
+            }
             if (this.BytesCollection != null)
             {
                 this.BytesCollection.BytePool.OnByteBlockRecycle(this);
@@ -286,7 +290,6 @@ namespace RRQMCore.ByteManager
         public void AbsoluteDispose()
         {
             this.Using = false;
-            this.Buffer = null;
             this.Position = 0;
             this.length = 0;
             this.BytesCollection = null;

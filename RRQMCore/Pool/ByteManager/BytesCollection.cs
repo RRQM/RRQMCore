@@ -10,7 +10,9 @@
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace RRQMCore.ByteManager
 {
@@ -57,6 +59,11 @@ namespace RRQMCore.ByteManager
             byteBlock.lengthChenged = false;
             byteBlock.BytesCollection = this;
             this.bytes.Enqueue(byteBlock);
+        }
+
+        internal List<ByteBlock> ToList()
+        {
+          return  this.bytes.ToList();
         }
     }
 }

@@ -31,8 +31,10 @@ namespace RRQMCore.Test
         {
             Console.ReadKey();
             TestBytePoolPerformance_one();
+           
             Console.ReadKey();
         }
+
 
 
         /// <summary>
@@ -49,7 +51,7 @@ namespace RRQMCore.Test
                 {
                     TimeSpan timeSpan = TimeMeasurer.Run(() =>
                     {
-                        for (int i = 0; i < 100000; i++)//每次申请，销毁10w次
+                        for (int i = 0; i < 1000000; i++)//每次申请，销毁10w次
                         {
                             ByteBlock byteBlock = bytePool.GetByteBlock(1024);
                             byteBlock.Dispose();
@@ -58,6 +60,15 @@ namespace RRQMCore.Test
                     Console.WriteLine(timeSpan);
                 });
             }
+
+            Console.WriteLine("回车测试重复元素");
+            Console.ReadKey();
+            Dictionary<ByteBlock, string> pairs = new Dictionary<ByteBlock, string>();
+            foreach (var item in bytePool)
+            {
+                pairs.Add(item, null);
+            }
+            Console.WriteLine("无重复元素");
         }
 
         /// <summary>
