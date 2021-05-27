@@ -11,6 +11,7 @@
 //------------------------------------------------------------------------------
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace RRQMCore.Pool
@@ -38,6 +39,16 @@ namespace RRQMCore.Pool
         }
 
         private ConcurrentQueue<T> queue = new ConcurrentQueue<T>();
+
+        private bool autoCreate=true;
+        /// <summary>
+        /// 是否自动生成
+        /// </summary>
+        public bool AutoCreate
+        {
+            get { return autoCreate; }
+            set { autoCreate = value; }
+        }
 
         /// <summary>
         /// 对象池容量
@@ -75,14 +86,29 @@ namespace RRQMCore.Pool
                 Interlocked.Decrement(ref this.freeSize);
                 return t;
             }
-
-            t = (T)Activator.CreateInstance(typeof(T));
-            t.Create();
-            t.NewCreate = true;
+            if (this.autoCreate)
+            {
+                t = (T)Activator.CreateInstance(typeof(T));
+                t.Create();
+                t.NewCreate = true;
+            }
             return t;
         }
-        
-        
+
+        /// <summary>
+        /// 获取所有对象
+        /// </summary>
+        /// <returns></returns>
+        public T[] GetAllObject()
+        {
+            List<T> ts = new List<T>();
+            while (this.queue.TryDequeue(out T t))
+            {
+                ts.Add(t);
+            }
+            return ts.ToArray();
+        }
+
         /// <summary>
         /// 预获取
         /// </summary>
