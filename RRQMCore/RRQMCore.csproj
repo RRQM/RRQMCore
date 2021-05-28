@@ -8,7 +8,7 @@
     <Version>1.2.24</Version>
     <SignAssembly>true</SignAssembly>
 		<Description>此程序集是RRQM的核心开源库，其中包含了内存池、高性能序列化、日志接口在内的很多基本内容。
-更新时间：2021.05.17
+
 
 更新内容：
 增加：对象池属性。
