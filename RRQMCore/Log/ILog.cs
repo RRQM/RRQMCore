@@ -10,6 +10,8 @@
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
+using System;
+
 namespace RRQMCore.Log
 {
     /// <summary>
@@ -23,8 +25,8 @@ namespace RRQMCore.Log
         /// <param name="logType"></param>
         /// <param name="source"></param>
         /// <param name="message"></param>
-        /// <param name="stackTrace"></param>
-        void Debug(LogType logType, object source, string message, string stackTrace);
+        /// <param name="exception"></param>
+        void Debug(LogType logType, object source, string message, Exception exception);
 
         /// <summary>
         /// 日志记录
