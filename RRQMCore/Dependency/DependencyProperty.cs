@@ -54,7 +54,18 @@ namespace RRQMCore.Dependency
 
         internal void SetValue(object value)
         {
-            if (valueType.IsAssignableFrom(value.GetType()))
+            if (value==null)
+            {
+                if (value is ValueType)
+                {
+                    throw new Exception("赋值类型与注册类型不一致");
+                }
+                else
+                {
+                    this.value = value;
+                }
+            }
+            else if (valueType.IsAssignableFrom(value.GetType()))
             {
                 this.value = value;
             }
