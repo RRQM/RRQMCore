@@ -50,6 +50,14 @@ namespace RRQMCore.ByteManager
             this.MaxSize = maxSize;
         }
 
+        private static BytePool bytePool=new BytePool(1024*1024*512,1024*1024*5);
+        /// <summary>
+        /// 默认内存池，
+        /// 内存池最大512Mb，
+        /// 单体最大5Mb。
+        /// </summary>
+        public static BytePool Default { get { return bytePool; } }
+
         /// <summary>
         /// 允许的内存池最大值,默认为100M Byte
         /// </summary>

@@ -12,6 +12,7 @@ namespace RRQMCore.Dependency
     /// </summary>
    public class RRQMDependencyObject
     {
+        [System.Diagnostics.DebuggerBrowsable( System.Diagnostics.DebuggerBrowsableState.Never)]
         private ConcurrentDictionary<DependencyProperty, object> dp = new ConcurrentDictionary<DependencyProperty, object>();
 
         /// <summary>
@@ -36,13 +37,14 @@ namespace RRQMCore.Dependency
         /// </summary>
         /// <param name="dependencyProperty"></param>
         /// <param name="value"></param>
-        public void SetValue(DependencyProperty dependencyProperty, object value)
+        public RRQMDependencyObject SetValue(DependencyProperty dependencyProperty, object value)
         {
+            dependencyProperty.SetValue(value);
             dp.AddOrUpdate(dependencyProperty, value, (DependencyProperty dp, object v) =>
             {
-                dp.SetValue(value);
                 return value;
             });
+            return this;
         }
     }
 }

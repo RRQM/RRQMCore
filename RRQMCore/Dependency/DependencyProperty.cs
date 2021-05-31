@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RRQMCore.Exceptions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -54,16 +55,13 @@ namespace RRQMCore.Dependency
 
         internal void SetValue(object value)
         {
-            if (value==null)
+            if (value == null)
             {
-                if (value is ValueType)
+                if (typeof(ValueType).IsAssignableFrom(valueType))
                 {
-                    throw new Exception("赋值类型与注册类型不一致");
+                    throw new RRQMException($"属性“{this.name}”赋值类型与注册类型不一致");
                 }
-                else
-                {
-                    this.value = value;
-                }
+                this.value = value;
             }
             else if (valueType.IsAssignableFrom(value.GetType()))
             {
@@ -71,7 +69,7 @@ namespace RRQMCore.Dependency
             }
             else
             {
-                throw new Exception("赋值类型与注册类型不一致");
+                throw new RRQMException($"属性“{this.name}”赋值类型与注册类型不一致");
             }
         }
 
