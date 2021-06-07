@@ -30,7 +30,6 @@ namespace RRQMCore.Test
         static void Main(string[] args)
         {
             Console.ReadKey();
-            TestBytePoolPerformance_one();
            
             Console.ReadKey();
         }
@@ -70,7 +69,6 @@ namespace RRQMCore.Test
             }
             Console.WriteLine("无重复元素");
         }
-
         /// <summary>
         /// 测试延迟销毁
         /// </summary>
@@ -130,7 +128,6 @@ namespace RRQMCore.Test
 
 
         }
-
         private static void TestSerializePerformance()
         {
             Student student = new Student();
