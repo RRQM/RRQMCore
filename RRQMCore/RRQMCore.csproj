@@ -5,13 +5,12 @@
 		<Authors>若汝棋茗</Authors>
 		<PackageIcon>RRQM.png</PackageIcon>
     <Copyright>Copyright © 2021 若汝棋茗</Copyright>
-    <Version>1.2.24</Version>
+    <Version>1.3.0</Version>
     <SignAssembly>true</SignAssembly>
 		<Description>此程序集是RRQM的核心开源库，其中包含了内存池、高性能序列化、日志接口在内的很多基本内容。
 
-
 更新内容：
-增加：对象池属性。
+增加：依赖属性设置。
 </Description>
 		<PackageProjectUrl>https://gitee.com/RRQM_OS/RRQMCore</PackageProjectUrl>
 		<AssemblyOriginatorKeyFile>RRQM.pfx</AssemblyOriginatorKeyFile>
