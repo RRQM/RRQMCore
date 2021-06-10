@@ -91,6 +91,16 @@ namespace RRQMCore.Run
         {
             this.@using = false;
             this.waitResult = default;
+        } 
+        
+        /// <summary>
+        /// 完全释放
+        /// </summary>
+        public void DisposeAbsolute()
+        {
+            this.@using = false;
+            this.waitResult = default;
+            this.waitHandle.Dispose();
         }
     }
 }

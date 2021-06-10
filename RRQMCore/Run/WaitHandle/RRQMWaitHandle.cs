@@ -9,6 +9,7 @@
 //  感谢您的下载和使用
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
@@ -19,7 +20,7 @@ namespace RRQMCore.Run
     /// 等待处理数据
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class RRQMWaitHandle<T> where T : WaitResult
+    public class RRQMWaitHandle<T>:IDisposable where T : WaitResult
     {
         /// <summary>
         /// 构造函数
@@ -106,6 +107,18 @@ namespace RRQMCore.Run
             {
                 waitData.Set(waitResult);
             }
+        }
+
+        /// <summary>
+        /// 释放
+        /// </summary>
+        public void Dispose()
+        {
+            foreach (var item in waitDic.Values)
+            {
+                item.DisposeAbsolute();
+            }
+            this.waitDic.Clear();
         }
     }
 }
