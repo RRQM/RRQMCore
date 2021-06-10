@@ -19,48 +19,53 @@ namespace RRQMCore.Run
     /// 等待处理数据
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class RRQMWaitHandle<T> where T : WaitResult, new()
+    public class RRQMWaitHandle<T> where T : WaitResult
     {
         /// <summary>
         /// 构造函数
         /// </summary>
         public RRQMWaitHandle()
         {
-            waitDic = new ConcurrentDictionary<int, WaitData<T>>();
+            waitDic = new Dictionary<int, WaitData<T>>();
         }
 
-        private ConcurrentDictionary<int, WaitData<T>> waitDic;
+        private Dictionary<int, WaitData<T>> waitDic;
 
-        private int sign;
+        private int signCount;
 
         /// <summary>
         /// 获取一个可等待对象
         /// </summary>
-        public WaitData<T> GetWaitData()
+        public WaitData<T> GetWaitData(T result)
         {
-            WaitData<T> waitData;
-            foreach (int item in waitDic.Keys)
+            lock (this)
             {
-                waitData = waitDic[item];
-                lock (this)
+                if (signCount==int.MaxValue)
                 {
-                    if (waitData.dispose)
+                    signCount = 0;
+                }
+                WaitData<T> waitData;
+                foreach (int item in waitDic.Keys)
+                {
+                    waitData = waitDic[item];
+                    if (!waitData.@using)
                     {
-                        this.waitDic.TryRemove(item, out _);
-                        waitData.WaitResult.Sign = Interlocked.Increment(ref sign);
-                        waitData.dispose = false;
-                        this.waitDic.TryAdd(waitData.WaitResult.Sign, waitData);
+                        this.waitDic.Remove(item);
+                        result.Sign = signCount++;
+                        waitData.LoadResult(result);
+                        waitData.@using = true;
+                        this.waitDic.Add(result.Sign, waitData);
                         return waitData;
                     }
                 }
+
+                waitData = new WaitData<T>();
+                result.Sign = signCount++;
+                waitData.LoadResult(result);
+                waitData.@using = true;
+                this.waitDic.Add(result.Sign, waitData);
+                return waitData;
             }
-
-            waitData = new WaitData<T>();
-            waitData.WaitResult = new T();
-            waitData.WaitResult.Sign = Interlocked.Increment(ref sign);
-            this.waitDic.TryAdd(waitData.WaitResult.Sign, waitData);
-            return waitData;
-
         }
 
         /// <summary>
@@ -72,7 +77,6 @@ namespace RRQMCore.Run
             WaitData<T> waitData;
             if (this.waitDic.TryGetValue(sign, out waitData))
             {
-                waitData.WaitResult.Sign = sign;
                 waitData.Set();
             }
         }
@@ -87,7 +91,6 @@ namespace RRQMCore.Run
             WaitData<T> waitData;
             if (this.waitDic.TryGetValue(sign, out waitData))
             {
-                waitData.WaitResult.Sign = sign;
                 waitData.Set(waitResult);
             }
         }
@@ -99,9 +102,8 @@ namespace RRQMCore.Run
         public void SetRun(T waitResult)
         {
             WaitData<T> waitData;
-            if (this.waitDic.TryGetValue(sign, out waitData))
+            if (this.waitDic.TryGetValue(waitResult.Sign, out waitData))
             {
-                waitData.WaitResult.Sign = sign;
                 waitData.Set(waitResult);
             }
         }

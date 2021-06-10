@@ -310,7 +310,7 @@ namespace RRQMCore.Test
         private static void CreatWaitHandle()
         {
             RRQMWaitHandle<MyWaitResult> waitHandle = new RRQMWaitHandle<MyWaitResult>();
-            WaitData<MyWaitResult> waitData = waitHandle.GetWaitData();
+            WaitData<MyWaitResult> waitData = waitHandle.GetWaitData(new MyWaitResult());
             waitData.Wait(10 * 1000);
 
             waitData.Set(new MyWaitResult());

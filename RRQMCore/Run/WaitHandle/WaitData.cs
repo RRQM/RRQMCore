@@ -30,10 +30,22 @@ namespace RRQMCore.Run
 
         private EventWaitHandle waitHandle;
 
+        private T waitResult;
         /// <summary>
         /// 等待数据结果
         /// </summary>
-        public T WaitResult { get; set; }
+        public T WaitResult
+        {
+            get { return waitResult; }
+        }
+
+        /// <summary>
+        /// 载入结果
+        /// </summary>
+        public void LoadResult(T result)
+        {
+            this.waitResult = result;
+        }
 
         /// <summary>
         /// 等待指定毫秒
@@ -58,18 +70,27 @@ namespace RRQMCore.Run
         /// <param name="waitResult">等待结果</param>
         public void Set(T waitResult)
         {
-            this.WaitResult = waitResult;
+            this.waitResult = waitResult;
             this.waitHandle.Set();
         }
 
-        internal bool dispose;
+        internal bool @using;
+        /// <summary>
+        /// 使用中
+        /// </summary>
+        public bool Using
+        {
+            get { return @using; }
+        }
+
 
         /// <summary>
         /// 回收
         /// </summary>
         public void Dispose()
         {
-            this.dispose = true;
+            this.@using = false;
+            this.waitResult = default;
         }
     }
 }
