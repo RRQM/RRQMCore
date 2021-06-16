@@ -27,10 +27,10 @@ namespace RRQMCore.Run
         /// </summary>
         public RRQMWaitHandle()
         {
-            waitDic = new Dictionary<int, WaitData<T>>();
+            waitDic = new ConcurrentDictionary<int, WaitData<T>>();
         }
 
-        private Dictionary<int, WaitData<T>> waitDic;
+        private ConcurrentDictionary<int, WaitData<T>> waitDic;
 
         private int signCount;
 
@@ -51,11 +51,11 @@ namespace RRQMCore.Run
                     waitData = waitDic[item];
                     if (!waitData.@using)
                     {
-                        this.waitDic.Remove(item);
+                        this.waitDic.TryRemove(item,out _);
                         result.Sign = signCount++;
                         waitData.LoadResult(result);
                         waitData.@using = true;
-                        this.waitDic.Add(result.Sign, waitData);
+                        this.waitDic.TryAdd(result.Sign, waitData);
                         return waitData;
                     }
                 }
@@ -64,7 +64,7 @@ namespace RRQMCore.Run
                 result.Sign = signCount++;
                 waitData.LoadResult(result);
                 waitData.@using = true;
-                this.waitDic.Add(result.Sign, waitData);
+                this.waitDic.TryAdd(result.Sign, waitData);
                 return waitData;
             }
         }

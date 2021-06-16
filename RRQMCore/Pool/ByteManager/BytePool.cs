@@ -145,6 +145,7 @@ namespace RRQMCore.ByteManager
             byteBlock.Position = 0;
             byteBlock.length = 0;
             return byteBlock;
+
         }
 
         /// <summary>
@@ -182,7 +183,7 @@ namespace RRQMCore.ByteManager
                     if (!this.bytesDictionary.TryGet(byteSize, out bytesCollection))
                     {
                         bytesCollection = new BytesCollection(byteSize);
-                        this.bytesDictionary.Add(byteSize, bytesCollection);
+                        //this.bytesDictionary.Add(byteSize, bytesCollection);
                     }
                 }
 
