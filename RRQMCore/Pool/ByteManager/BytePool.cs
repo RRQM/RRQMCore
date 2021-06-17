@@ -200,10 +200,12 @@ namespace RRQMCore.ByteManager
 
         internal void OnByteBlockRecycle(ByteBlock byteBlock)
         {
+
             BytesCollection bytesCollection;
             this.CreatedBlockSize = Math.Max(CreatedBlockSize, byteBlock.Capacity);
             if (MaxSize - freeSize >= byteBlock.Capacity)
             {
+
                 freeSize += byteBlock.Capacity;
                 if (this.bytesDictionary.TryGet(byteBlock.Capacity, out bytesCollection))
                 {
@@ -234,6 +236,7 @@ namespace RRQMCore.ByteManager
                 this.freeSize = size;
                 byteBlock.AbsoluteDispose();
             }
+
         }
 
         /// <summary>

@@ -22,10 +22,10 @@ namespace RRQMCore.ByteManager
     {
         internal BytesDictionary()
         {
-            this.bytesDic = new Dictionary<long, BytesCollection>();
+            this.bytesDic = new ConcurrentDictionary<long, BytesCollection>();
             this.keys = new List<long>();
         }
-        private Dictionary<long, BytesCollection> bytesDic;
+        private ConcurrentDictionary<long, BytesCollection> bytesDic;
         private List<long> keys;
 
         internal List<long> Keys { get { return this.keys; } }
@@ -42,8 +42,10 @@ namespace RRQMCore.ByteManager
 
         internal void Add(long key, BytesCollection bytesCollection)
         {
-            this.keys.Add(key);
-            this.bytesDic.Add(key, bytesCollection);
+            if (this.bytesDic.TryAdd(key, bytesCollection))
+            {
+                this.keys.Add(key);
+            }
         }
     }
 }
