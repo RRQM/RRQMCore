@@ -59,7 +59,7 @@ namespace RRQMCore.Dependency
             {
                 if (typeof(ValueType).IsAssignableFrom(valueType))
                 {
-                    throw new RRQMException($"属性“{this.name}”赋值类型与注册类型不一致");
+                    throw new RRQMException($"属性“{this.name}”赋值类型与注册类型不一致，应当注入“{valueType}”类型");
                 }
                 this.value = value;
             }
@@ -69,7 +69,7 @@ namespace RRQMCore.Dependency
             }
             else
             {
-                throw new RRQMException($"属性“{this.name}”赋值类型与注册类型不一致");
+                throw new RRQMException($"属性“{this.name}”赋值类型与注册类型不一致，应当注入“{valueType}”类型");
             }
         }
 
