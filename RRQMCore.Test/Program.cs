@@ -30,7 +30,7 @@ namespace RRQMCore.Test
         static void Main(string[] args)
         {
             Console.ReadKey();
-            TestBytePoolPerformance_one();
+            TestSerializePerformance();
             Console.ReadKey();
         }
 
