@@ -40,7 +40,8 @@ namespace RRQMCore.Pool
 
         private ConcurrentQueue<T> queue = new ConcurrentQueue<T>();
 
-        private bool autoCreate=true;
+        private bool autoCreate = true;
+
         /// <summary>
         /// 是否自动生成
         /// </summary>

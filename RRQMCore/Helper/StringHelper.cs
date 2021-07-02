@@ -47,7 +47,7 @@ namespace RRQMCore.Helper
         /// <returns></returns>
         public static string[] Split(this string str, string pattern)
         {
-           return Regex.Split(str, pattern);
+            return Regex.Split(str, pattern);
         }
 
         /// <summary>
@@ -68,16 +68,16 @@ namespace RRQMCore.Helper
 
             return s.ToArray();
         }
-        
+
         /// <summary>
         /// 将字符串转换为指定类型
         /// </summary>
         /// <param name="str"></param>
         /// <param name="type"></param>
         /// <returns></returns>
-        public static object ParseToType(this string str,Type type)
+        public static object ParseToType(this string str, Type type)
         {
-            dynamic obj=null;
+            dynamic obj = null;
             if (type == RRQMReadonly.stringType)
             {
                 obj = str;
@@ -118,7 +118,7 @@ namespace RRQMCore.Helper
             {
                 obj = DateTime.Parse(str);
             }
-       
+
             return obj;
         }
     }

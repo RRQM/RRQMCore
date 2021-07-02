@@ -11,10 +11,6 @@
 //------------------------------------------------------------------------------
 using RRQMCore.Exceptions;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RRQMCore.Dependency
 {
@@ -25,8 +21,8 @@ namespace RRQMCore.Dependency
     {
         private DependencyProperty()
         {
-
         }
+
         private string name;
 
         /// <summary>
@@ -38,6 +34,7 @@ namespace RRQMCore.Dependency
         }
 
         private Type owner;
+
         /// <summary>
         /// 所属类型
         /// </summary>
@@ -47,6 +44,7 @@ namespace RRQMCore.Dependency
         }
 
         private Type valueType;
+
         /// <summary>
         /// 值类型
         /// </summary>
@@ -56,6 +54,7 @@ namespace RRQMCore.Dependency
         }
 
         private object value;
+
         /// <summary>
         /// 默认值
         /// </summary>
@@ -70,7 +69,7 @@ namespace RRQMCore.Dependency
             {
                 if (typeof(ValueType).IsAssignableFrom(valueType))
                 {
-                    throw new RRQMException($"属性“{this.name}”赋值类型与注册类型不一致，应当注入“{valueType}”类型");
+                    throw new RRQMException($"属性“{this.name}”赋值类型与注册类型不一致");
                 }
                 this.value = value;
             }

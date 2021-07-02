@@ -12,9 +12,7 @@
 using RRQMCore.Exceptions;
 using System;
 using System.Collections;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Threading;
 
 namespace RRQMCore.ByteManager
 {
@@ -51,6 +49,7 @@ namespace RRQMCore.ByteManager
         }
 
         private static BytePool bytePool = new BytePool(1024 * 1024 * 512, 1024 * 1024 * 5);
+
         /// <summary>
         /// 默认内存池，
         /// 内存池最大512Mb，
@@ -76,7 +75,6 @@ namespace RRQMCore.ByteManager
         public long CreatedBlockSize { get; private set; }
 
         private BytesDictionary bytesDictionary = new BytesDictionary();
-
 
         /// <summary>
         /// 获取ByteBlock
@@ -145,7 +143,6 @@ namespace RRQMCore.ByteManager
             byteBlock.Position = 0;
             byteBlock.length = 0;
             return byteBlock;
-
         }
 
         /// <summary>
@@ -155,7 +152,12 @@ namespace RRQMCore.ByteManager
         /// <returns></returns>
         public ByteBlock GetByteBlock(long byteSize)
         {
-            return this.GetByteBlock(byteSize, false);
+            ByteBlock byteBlock = this.GetByteBlock(byteSize, false);
+
+            if (byteBlock.Position > 0)
+            {
+            }
+            return byteBlock;
         }
 
         /// <summary>
@@ -200,12 +202,10 @@ namespace RRQMCore.ByteManager
 
         internal void OnByteBlockRecycle(ByteBlock byteBlock)
         {
-
             BytesCollection bytesCollection;
             this.CreatedBlockSize = Math.Max(CreatedBlockSize, byteBlock.Capacity);
             if (MaxSize - freeSize >= byteBlock.Capacity)
             {
-
                 freeSize += byteBlock.Capacity;
                 if (this.bytesDictionary.TryGet(byteBlock.Capacity, out bytesCollection))
                 {
@@ -236,7 +236,6 @@ namespace RRQMCore.ByteManager
                 this.freeSize = size;
                 byteBlock.AbsoluteDispose();
             }
-
         }
 
         /// <summary>

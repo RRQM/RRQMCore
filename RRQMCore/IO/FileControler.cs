@@ -62,8 +62,6 @@ namespace RRQMCore.IO
             }
         }
 
-
-
         [DllImport("kernel32.dll")]
         private static extern IntPtr _lopen(string lpPathName, int iReadWrite);
 

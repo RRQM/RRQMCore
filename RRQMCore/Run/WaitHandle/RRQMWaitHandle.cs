@@ -11,8 +11,6 @@
 //------------------------------------------------------------------------------
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Threading;
 
 namespace RRQMCore.Run
 {
@@ -20,7 +18,7 @@ namespace RRQMCore.Run
     /// 等待处理数据
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class RRQMWaitHandle<T>:IDisposable where T : WaitResult
+    public class RRQMWaitHandle<T> : IDisposable where T : WaitResult
     {
         /// <summary>
         /// 构造函数
@@ -41,7 +39,7 @@ namespace RRQMCore.Run
         {
             lock (this)
             {
-                if (signCount==int.MaxValue)
+                if (signCount == int.MaxValue)
                 {
                     signCount = 0;
                 }
@@ -51,7 +49,7 @@ namespace RRQMCore.Run
                     waitData = waitDic[item];
                     if (!waitData.@using)
                     {
-                        this.waitDic.TryRemove(item,out _);
+                        this.waitDic.TryRemove(item, out _);
                         result.Sign = signCount++;
                         waitData.LoadResult(result);
                         waitData.@using = true;

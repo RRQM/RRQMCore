@@ -25,8 +25,6 @@ namespace RRQMCore.Serialization
     /// </summary>
     public class RRQMBinaryFormatter
     {
-       
-
         #region Serialize
 
         /// <summary>
@@ -115,7 +113,7 @@ namespace RRQMCore.Serialization
                 {
                     var enumValType = Enum.GetUnderlyingType(graph.GetType());
 
-                    if (enumValType ==RRQMReadonly. byteType)
+                    if (enumValType == RRQMReadonly.byteType)
                     {
                         data = new byte[] { (byte)graph };
                     }
@@ -349,7 +347,7 @@ namespace RRQMCore.Serialization
                                 string propertyName = Encoding.UTF8.GetString(datas, offset + 1, len);
                                 offset += len + 1;
                                 PropertyInfo propertyInfo = type.GetProperty(propertyName, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-                                if (propertyInfo==null)
+                                if (propertyInfo == null)
                                 {
                                     continue;
                                 }
@@ -436,7 +434,7 @@ namespace RRQMCore.Serialization
         {
             if (type.IsArray && !type.IsGenericType)
             {
-                type= typeof(List<>).MakeGenericType(type.GetElementType());
+                type = typeof(List<>).MakeGenericType(type.GetElementType());
                 InstanceObject typeInfo = InstanceCache.GetOrAdd(type.FullName, (v) =>
                 {
                     InstanceObject instanceObject = new InstanceObject();

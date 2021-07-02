@@ -9,7 +9,6 @@
 //  感谢您的下载和使用
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 
@@ -25,6 +24,7 @@ namespace RRQMCore.ByteManager
             this.bytesDic = new ConcurrentDictionary<long, BytesCollection>();
             this.keys = new List<long>();
         }
+
         private ConcurrentDictionary<long, BytesCollection> bytesDic;
         private List<long> keys;
 

@@ -80,9 +80,9 @@ namespace RRQMCore.Data.Converter
         public static T EnumConvert<T>(string valueString, T defaultValue = default(T)) where T : struct
         {
             T result;
-            if (Enum.TryParse(valueString, out result)) 
+            if (Enum.TryParse(valueString, out result))
             {
-                return result; 
+                return result;
             }
             return defaultValue;
         }

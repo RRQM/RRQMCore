@@ -63,7 +63,7 @@ namespace RRQMCore.ByteManager
 
         internal List<ByteBlock> ToList()
         {
-          return  this.bytes.ToList();
+            return this.bytes.ToList();
         }
     }
 }

@@ -38,7 +38,6 @@ namespace RRQMCore.ByteManager
         /// </summary>
         public bool Holding { get; private set; }
 
-
         /// <summary>
         /// 使用状态
         /// </summary>
@@ -60,9 +59,14 @@ namespace RRQMCore.ByteManager
         public override bool CanWrite => this.Using;
 
         /// <summary>
-        /// 流长度
+        /// 真实长度
         /// </summary>
         public override long Length { get { return length; } }
+
+        /// <summary>
+        /// Int真实长度
+        /// </summary>
+        public int Len { get { return (int)length; } }
 
         internal long length;
 
@@ -294,6 +298,5 @@ namespace RRQMCore.ByteManager
             this.length = 0;
             this.BytesCollection = null;
         }
-
     }
 }

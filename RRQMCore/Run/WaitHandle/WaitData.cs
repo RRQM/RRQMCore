@@ -31,6 +31,7 @@ namespace RRQMCore.Run
         private EventWaitHandle waitHandle;
 
         private T waitResult;
+
         /// <summary>
         /// 等待数据结果
         /// </summary>
@@ -51,9 +52,9 @@ namespace RRQMCore.Run
         /// 等待指定毫秒
         /// </summary>
         /// <param name="millisecond"></param>
-        public void Wait(int millisecond)
+        public bool Wait(int millisecond)
         {
-            this.waitHandle.WaitOne(millisecond);
+            return this.waitHandle.WaitOne(millisecond);
         }
 
         /// <summary>
@@ -75,6 +76,7 @@ namespace RRQMCore.Run
         }
 
         internal bool @using;
+
         /// <summary>
         /// 使用中
         /// </summary>
@@ -83,7 +85,6 @@ namespace RRQMCore.Run
             get { return @using; }
         }
 
-
         /// <summary>
         /// 回收
         /// </summary>
@@ -91,8 +92,8 @@ namespace RRQMCore.Run
         {
             this.@using = false;
             this.waitResult = default;
-        } 
-        
+        }
+
         /// <summary>
         /// 完全释放
         /// </summary>

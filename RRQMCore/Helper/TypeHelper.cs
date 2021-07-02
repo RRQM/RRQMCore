@@ -58,6 +58,5 @@ namespace RRQMCore.Helper
         {
             return targetType.IsValueType ? Activator.CreateInstance(targetType) : null;
         }
-
     }
 }
