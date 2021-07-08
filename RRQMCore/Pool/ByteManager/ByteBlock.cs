@@ -11,6 +11,8 @@
 //------------------------------------------------------------------------------
 using System;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace RRQMCore.ByteManager
 {
@@ -33,30 +35,41 @@ namespace RRQMCore.ByteManager
         /// </summary>
         public byte[] Buffer { get; internal set; }
 
+
+        private bool holding;
         /// <summary>
         /// 表示持续性持有，为True时，Dispose将调用无效。
         /// </summary>
-        public bool Holding { get; private set; }
+        public bool Holding
+        {
+            get { return holding; }
+        }
+
+
+        internal bool @using;
 
         /// <summary>
         /// 使用状态
         /// </summary>
-        public bool Using { get; internal set; }
+        public bool Using
+        {
+            get { return @using; }
+        }
 
         /// <summary>
         /// 可读取
         /// </summary>
-        public override bool CanRead => this.Using;
+        public override bool CanRead => this.@using;
 
         /// <summary>
         /// 支持查找
         /// </summary>
-        public override bool CanSeek => this.Using;
+        public override bool CanSeek => this.@using;
 
         /// <summary>
         /// 可写入
         /// </summary>
-        public override bool CanWrite => this.Using;
+        public override bool CanWrite => this.@using;
 
         /// <summary>
         /// 真实长度
@@ -80,36 +93,33 @@ namespace RRQMCore.ByteManager
         /// </summary>
         public override long Position { get; set; }
 
-        internal bool lengthChenged;
-
         /// <summary>
         /// 重新指定Buffer
         /// </summary>
         public void SetBuffer(byte[] buffer)
         {
-            if (!this.Using)
+            if (!this.@using)
             {
                 throw new RRQMCore.Exceptions.RRQMException("内存块已释放");
             }
             if (buffer != null)
             {
                 this.Buffer = buffer;
-                this.lengthChenged = true;
             }
         }
 
         /// <summary>
         /// 设置持续持有属性，当为False时，会自动调用Dispose。
         /// </summary>
-        /// <param name="enable"></param>
-        public void SetHolding(bool enable)
+        /// <param name="holding"></param>
+        public void SetHolding(bool holding)
         {
-            if (!this.Using)
+            if (!this.@using)
             {
-                throw new RRQMCore.Exceptions.RRQMException("内存块已释放");
+                throw new Exceptions.RRQMException("内存块已释放");
             }
-            this.Holding = enable;
-            if (!enable)
+            this.holding = holding;
+            if (!holding)
             {
                 this.Dispose();
             }
@@ -124,7 +134,7 @@ namespace RRQMCore.ByteManager
         /// <returns></returns>
         public override int Read(byte[] buffer, int offset, int count)
         {
-            if (!this.Using)
+            if (!this.@using)
             {
                 throw new RRQMCore.Exceptions.RRQMException("内存块已释放");
             }
@@ -142,7 +152,7 @@ namespace RRQMCore.ByteManager
         /// <param name="count"></param>
         public override void Write(byte[] buffer, int offset, int count)
         {
-            if (!this.Using)
+            if (!this.@using)
             {
                 throw new RRQMCore.Exceptions.RRQMException("内存块已释放");
             }
@@ -151,7 +161,6 @@ namespace RRQMCore.ByteManager
                 byte[] newBuffer = new byte[this.Buffer.Length + count];
                 Array.Copy(this.Buffer, newBuffer, this.Buffer.Length);
                 this.Buffer = newBuffer;
-                this.lengthChenged = true;
             }
             Array.Copy(buffer, offset, Buffer, this.Position, count);
             this.Position += count;
@@ -185,7 +194,7 @@ namespace RRQMCore.ByteManager
         /// <returns></returns>
         public void Write(byte byteBuffer)
         {
-            if (!this.Using)
+            if (!this.@using)
             {
                 throw new RRQMCore.Exceptions.RRQMException("内存块已释放");
             }
@@ -194,7 +203,6 @@ namespace RRQMCore.ByteManager
                 byte[] newBuffer = new byte[this.Buffer.Length + 1024];
                 Array.Copy(this.Buffer, newBuffer, this.Buffer.Length);
                 this.Buffer = newBuffer;
-                this.lengthChenged = true;
             }
             this.Buffer[this.Position] = byteBuffer;
             this.Position += 1;
@@ -207,7 +215,7 @@ namespace RRQMCore.ByteManager
         /// <returns></returns>
         public byte[] ToArray()
         {
-            if (!this.Using)
+            if (!this.@using)
             {
                 throw new RRQMCore.Exceptions.RRQMException("内存块已释放");
             }
@@ -231,7 +239,7 @@ namespace RRQMCore.ByteManager
         /// <returns></returns>
         public override long Seek(long offset, SeekOrigin origin)
         {
-            if (!this.Using)
+            if (!this.@using)
             {
                 throw new RRQMCore.Exceptions.RRQMException("内存块已释放");
             }
@@ -258,7 +266,7 @@ namespace RRQMCore.ByteManager
         /// <param name="value"></param>
         public override void SetLength(long value)
         {
-            if (!this.Using)
+            if (!this.@using)
             {
                 throw new RRQMCore.Exceptions.RRQMException("内存块已释放");
             }
@@ -278,10 +286,12 @@ namespace RRQMCore.ByteManager
             {
                 return;
             }
-            if (!this.Using)
+            if (!this.@using)
             {
-                throw new RRQMCore.Exceptions.RRQMException("重复释放");
+                throw new Exceptions.RRQMException("重复释放");
             }
+            this.@using = false;
+
             if (this.BytesCollection != null)
             {
                 this.BytesCollection.BytePool.OnByteBlockRecycle(this);
@@ -293,7 +303,7 @@ namespace RRQMCore.ByteManager
         /// </summary>
         public void AbsoluteDispose()
         {
-            this.Using = false;
+            this.@using = false;
             this.Position = 0;
             this.length = 0;
             this.BytesCollection = null;

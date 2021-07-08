@@ -56,7 +56,6 @@ namespace RRQMCore.ByteManager
         /// <param name="byteBlock"></param>
         public void Add(ByteBlock byteBlock)
         {
-            byteBlock.lengthChenged = false;
             byteBlock.BytesCollection = this;
             this.bytes.Enqueue(byteBlock);
         }

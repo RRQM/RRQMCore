@@ -40,12 +40,9 @@ namespace RRQMCore.ByteManager
             return bytesDic.TryGetValue(key, out bytesCollection);
         }
 
-        internal void Add(long key, BytesCollection bytesCollection)
+        internal bool TryAdd(long key, BytesCollection bytesCollection)
         {
-            if (this.bytesDic.TryAdd(key, bytesCollection))
-            {
-                this.keys.Add(key);
-            }
+            return this.bytesDic.TryAdd(key, bytesCollection);
         }
     }
 }

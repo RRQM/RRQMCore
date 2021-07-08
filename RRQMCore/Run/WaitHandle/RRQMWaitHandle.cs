@@ -9,8 +9,10 @@
 //  感谢您的下载和使用
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
+using RRQMCore.Exceptions;
 using System;
 using System.Collections.Concurrent;
+using System.Threading;
 
 namespace RRQMCore.Run
 {
@@ -25,11 +27,12 @@ namespace RRQMCore.Run
         /// </summary>
         public RRQMWaitHandle()
         {
-            waitDic = new ConcurrentDictionary<int, WaitData<T>>();
+            this.waitDic = new ConcurrentDictionary<int, WaitData<T>>();
+            this.waitQueue = new ConcurrentQueue<WaitData<T>>();
         }
 
         private ConcurrentDictionary<int, WaitData<T>> waitDic;
-
+        private ConcurrentQueue<WaitData<T>> waitQueue;
         private int signCount;
 
         /// <summary>
@@ -37,34 +40,24 @@ namespace RRQMCore.Run
         /// </summary>
         public WaitData<T> GetWaitData(T result)
         {
-            lock (this)
+            if (signCount == int.MaxValue)
             {
-                if (signCount == int.MaxValue)
-                {
-                    signCount = 0;
-                }
-                WaitData<T> waitData;
-                foreach (int item in waitDic.Keys)
-                {
-                    waitData = waitDic[item];
-                    if (!waitData.@using)
-                    {
-                        this.waitDic.TryRemove(item, out _);
-                        result.Sign = signCount++;
-                        waitData.LoadResult(result);
-                        waitData.@using = true;
-                        this.waitDic.TryAdd(result.Sign, waitData);
-                        return waitData;
-                    }
-                }
-
-                waitData = new WaitData<T>();
-                result.Sign = signCount++;
+                signCount = 0;
+            }
+            WaitData<T> waitData;
+            if (this.waitQueue.TryDequeue(out waitData))
+            {
+                result.Sign = Interlocked.Increment(ref signCount);
                 waitData.LoadResult(result);
-                waitData.@using = true;
                 this.waitDic.TryAdd(result.Sign, waitData);
                 return waitData;
             }
+
+            waitData = new WaitData<T>();
+            result.Sign = Interlocked.Increment(ref signCount);
+            waitData.LoadResult(result);
+            this.waitDic.TryAdd(result.Sign, waitData);
+            return waitData;
         }
 
         /// <summary>
@@ -74,7 +67,7 @@ namespace RRQMCore.Run
         public void SetRun(int sign)
         {
             WaitData<T> waitData;
-            if (this.waitDic.TryGetValue(sign, out waitData))
+            if (this.waitDic.TryRemove(sign, out waitData))
             {
                 waitData.Set();
             }
@@ -88,7 +81,7 @@ namespace RRQMCore.Run
         public void SetRun(int sign, T waitResult)
         {
             WaitData<T> waitData;
-            if (this.waitDic.TryGetValue(sign, out waitData))
+            if (this.waitDic.TryRemove(sign, out waitData))
             {
                 waitData.Set(waitResult);
             }
@@ -101,9 +94,25 @@ namespace RRQMCore.Run
         public void SetRun(T waitResult)
         {
             WaitData<T> waitData;
-            if (this.waitDic.TryGetValue(waitResult.Sign, out waitData))
+            if (this.waitDic.TryRemove(waitResult.Sign, out waitData))
             {
                 waitData.Set(waitResult);
+            }
+        }
+
+        /// <summary>
+        /// 销毁
+        /// </summary>
+        /// <param name="waitData"></param>
+        public void Destroy(WaitData<T> waitData)
+        {
+            if (waitData._dispose)
+            {
+                throw new RRQMException("waitData已销毁");
+            }
+            if (this.waitDic.TryRemove(waitData.WaitResult.Sign, out _))
+            {
+                this.waitQueue.Enqueue(waitData);
             }
         }
 
@@ -114,9 +123,16 @@ namespace RRQMCore.Run
         {
             foreach (var item in waitDic.Values)
             {
-                item.DisposeAbsolute();
+                item.Dispose();
+            }
+            foreach (var item in this.waitQueue)
+            {
+                item.Dispose();
             }
             this.waitDic.Clear();
+            while (this.waitQueue.TryDequeue(out _))
+            {
+            }
         }
     }
 }

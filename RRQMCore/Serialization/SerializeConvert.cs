@@ -174,7 +174,7 @@ namespace RRQMCore.Serialization
         /// <returns></returns>
         public static byte[] RRQMBinarySerialize(object obj, bool reserveAttributeName)
         {
-            using (ByteBlock byteBlock = new ByteBlock() { Using = true })
+            using (ByteBlock byteBlock = new ByteBlock() { @using = true })
             {
                 byteBlock.SetBuffer(new byte[1024 * 10]);
                 RRQMBinarySerialize(byteBlock, obj, reserveAttributeName);

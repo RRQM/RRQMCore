@@ -75,31 +75,14 @@ namespace RRQMCore.Run
             this.waitHandle.Set();
         }
 
-        internal bool @using;
-
-        /// <summary>
-        /// 使用中
-        /// </summary>
-        public bool Using
-        {
-            get { return @using; }
-        }
+        internal bool _dispose;
 
         /// <summary>
         /// 回收
         /// </summary>
         public void Dispose()
         {
-            this.@using = false;
-            this.waitResult = default;
-        }
-
-        /// <summary>
-        /// 完全释放
-        /// </summary>
-        public void DisposeAbsolute()
-        {
-            this.@using = false;
+            this._dispose = true;
             this.waitResult = default;
             this.waitHandle.Dispose();
         }

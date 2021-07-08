@@ -106,7 +106,7 @@ namespace RRQMCore.ByteManager
                     {
                         if (bytesCollection.TryGet(out byteBlock))
                         {
-                            byteBlock.Using = true;
+                            byteBlock.@using = true;
                             byteBlock.Position = 0;
                             byteBlock.length = 0;
                             freeSize -= byteBlock.Capacity;
@@ -125,7 +125,7 @@ namespace RRQMCore.ByteManager
                                 {
                                     if (bytesCollection.TryGet(out byteBlock))
                                     {
-                                        byteBlock.Using = true;
+                                        byteBlock.@using = true;
                                         byteBlock.Position = 0;
                                         byteBlock.length = 0;
                                         freeSize -= byteBlock.Capacity;
@@ -139,7 +139,7 @@ namespace RRQMCore.ByteManager
                     byteBlock = CreatByteBlock(byteSize);
                 }
             }
-            byteBlock.Using = true;
+            byteBlock.@using = true;
             byteBlock.Position = 0;
             byteBlock.length = 0;
             return byteBlock;
@@ -185,7 +185,6 @@ namespace RRQMCore.ByteManager
                     if (!this.bytesDictionary.TryGet(byteSize, out bytesCollection))
                     {
                         bytesCollection = new BytesCollection(byteSize);
-                        //this.bytesDictionary.Add(byteSize, bytesCollection);
                     }
                 }
 
@@ -217,7 +216,11 @@ namespace RRQMCore.ByteManager
                     lock (this)
                     {
                         bytesCollection = new BytesCollection(byteBlock.Capacity);
-                        this.bytesDictionary.Add(byteBlock.Capacity, bytesCollection);
+                        if (this.bytesDictionary.TryAdd(byteBlock.Capacity, bytesCollection))
+                        {
+                            bytesCollection.BytePool = this;
+                            bytesCollection.Add(byteBlock);
+                        }
                     }
                 }
             }
