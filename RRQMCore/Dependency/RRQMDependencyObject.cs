@@ -18,8 +18,15 @@ namespace RRQMCore.Dependency
     /// </summary>
     public class RRQMDependencyObject
     {
+        /// <summary>
+        /// 构造函数
+        /// </summary>
+        public RRQMDependencyObject()
+        {
+            this.dp = new ConcurrentDictionary<DependencyProperty, object>();
+        }
         [System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]
-        private ConcurrentDictionary<DependencyProperty, object> dp = new ConcurrentDictionary<DependencyProperty, object>();
+        private ConcurrentDictionary<DependencyProperty, object> dp ;
 
         /// <summary>
         /// 获取值
@@ -45,7 +52,7 @@ namespace RRQMCore.Dependency
         /// <param name="value"></param>
         public RRQMDependencyObject SetValue(DependencyProperty dependencyProperty, object value)
         {
-            dependencyProperty.SetValue(value);
+            dependencyProperty.CheckType(value);
             dp.AddOrUpdate(dependencyProperty, value, (DependencyProperty dp, object v) =>
             {
                 return value;

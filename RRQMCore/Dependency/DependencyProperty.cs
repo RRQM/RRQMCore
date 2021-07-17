@@ -63,24 +63,25 @@ namespace RRQMCore.Dependency
             get { return value; }
         }
 
-        internal void SetValue(object value)
+        internal void CheckType(object value)
         {
             if (value == null)
             {
                 if (typeof(ValueType).IsAssignableFrom(valueType))
                 {
-                    throw new RRQMException($"属性“{this.name}”赋值类型与注册类型不一致");
+                    throw new RRQMException($"属性“{this.name}”赋值类型不允许出现Null");
                 }
-                this.value = value;
             }
-            else if (valueType.IsAssignableFrom(value.GetType()))
-            {
-                this.value = value;
-            }
-            else
+            else if (!valueType.IsAssignableFrom(value.GetType()))
             {
                 throw new RRQMException($"属性“{this.name}”赋值类型与注册类型不一致，应当注入“{valueType}”类型");
             }
+        }
+
+        internal void SetDefauleValue(object value)
+        {
+            this.CheckType(value);
+            this.value = value;
         }
 
         /// <summary>
@@ -97,7 +98,7 @@ namespace RRQMCore.Dependency
             dp.name = propertyName;
             dp.valueType = valueType;
             dp.owner = owner;
-            dp.SetValue(value);
+            dp.SetDefauleValue(value);
             return dp;
         }
     }
